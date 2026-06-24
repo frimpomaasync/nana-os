@@ -174,6 +174,7 @@ h4.sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(
   <button data-t="kids"><i data-ic="child"></i>Kids</button>
   <button data-t="brain"><i data-ic="brain"></i>Brain</button>
   <button data-t="money"><i data-ic="coin"></i>Money</button>
+  <button data-t="trust"><i data-ic="temple"></i>Trust</button>
   <button data-t="content"><i data-ic="pen"></i>Content</button>
   <button data-t="mission"><i data-ic="rocket"></i>Mission</button>
   <button data-t="week"><i data-ic="cal"></i>Week</button>
@@ -405,6 +406,23 @@ h4.sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(
 <section class="tab" id="tab-content">
   <div class="embednote">Frimpomaa content generator.</div>
   <div class="embedwrap"><iframe class="appframe" id="frame-content" title="Frimpomaa Content Generator" referrerpolicy="no-referrer"></iframe></div>
+</section>
+<!-- TRUST -->
+<section class="tab" id="tab-trust">
+  <div class="banner" style="border-color:var(--line2)"><i data-ic="temple"></i><b>Beginner&rsquo;s guide to a living trust.</b> This teaches the concepts and tracks your plan &mdash; it&rsquo;s educational, not legal or financial advice. Use an estate attorney for the actual documents.</div>
+  <div class="statrow" id="trustStats"></div>
+  <div class="card" style="margin-bottom:14px"><h2><span class="icbox"><i data-ic="bulb"></i></span>Learn the basics</h2><div class="muted" style="margin-bottom:8px">Tap a lesson to open it. Framework from &ldquo;The Only Living Trusts Book You&rsquo;ll Ever Need&rdquo; by Garrett Monroe.</div><div id="trustLessons"></div></div>
+  <div class="card" style="margin-bottom:14px"><h2><span class="icbox"><i data-ic="check"></i></span>Set it up &mdash; your checklist</h2><div id="trustSetup"></div></div>
+  <div class="card" style="margin-bottom:14px"><h2><span class="icbox"><i data-ic="temple"></i></span>Fund it &mdash; your assets</h2><div class="muted" style="margin-bottom:8px">A trust only controls what you re-title into it. Add what you own, then tick each &ldquo;in trust&rdquo; as you transfer it.</div>
+    <div class="row" style="margin-bottom:8px"><input id="asName" placeholder="e.g. Family home, 2022 car, my LLC"><select id="asType" class="fix" style="width:135px"><option>Home</option><option>Car</option><option>Business</option><option>Bank/Investment</option><option>Valuable</option><option>Other</option></select><input id="asVal" type="number" placeholder="Value $" class="fix" style="width:120px"><button class="btn fix" onclick="addAsset()"><i data-ic="plus"></i>Add</button></div>
+    <div id="trustAssets"></div></div>
+  <div class="card" style="margin-bottom:14px"><h2><span class="icbox"><i data-ic="child"></i></span>Your people &mdash; beneficiaries</h2><div class="muted" style="margin-bottom:8px">Who inherits, and how you&rsquo;d split it.</div>
+    <div class="row" style="margin-bottom:8px"><input id="beName" placeholder="Name"><input id="beRel" placeholder="Relation (e.g. daughter)" class="fix" style="width:165px"><input id="beShare" type="number" placeholder="% share" class="fix" style="width:100px"><button class="btn fix" onclick="addBene()"><i data-ic="plus"></i>Add</button></div>
+    <div id="trustBenes"></div></div>
+  <div class="card"><h2><span class="icbox"><i data-ic="bolt"></i></span>Life insurance &amp; borrowing</h2><div class="muted" style="margin-bottom:8px">Permanent (whole/universal) policies build cash value you can borrow against. Add a policy to see how much.</div>
+    <div class="row" style="margin-bottom:8px"><input id="poName" placeholder="Insurer / policy name"><select id="poType" class="fix" style="width:150px"><option>Whole life</option><option>Universal (IUL)</option><option>Term (no cash value)</option></select></div>
+    <div class="row" style="margin-bottom:8px"><input id="poDeath" type="number" placeholder="Death benefit $"><input id="poCash" type="number" placeholder="Cash value $"><input id="poRate" type="number" step="0.1" placeholder="Loan rate %" class="fix" style="width:120px"><button class="btn fix" onclick="addPolicy()"><i data-ic="plus"></i>Add</button></div>
+    <div id="trustPolicies"></div></div>
 </section>
 <!-- MISSION CONTROL -->
 <section class="tab" id="tab-mission"><div class="embedwrap"><iframe class="appframe" id="frame-mission" title="Mission Control" referrerpolicy="no-referrer"></iframe></div></section>
@@ -1195,9 +1213,76 @@ function renderPeptides(){
       +'<div class="row" style="margin-top:8px"><button class="btn fix" onclick="pepGCal('+p.id+')"><i data-ic="cal"></i>Add schedule to Google Calendar</button></div></div>';
   }).join('');
 }
+/* ---------- Trust (living-trust beginner guide) ---------- */
+var TRUST_LESSONS=[
+ {id:'l1',t:'What is a living trust?',b:'A legal &ldquo;container&rdquo; you create while you&rsquo;re alive to hold your assets. You stay in control as trustee. When you pass or can&rsquo;t manage things, your chosen successor trustee hands everything to your beneficiaries &mdash; privately and without probate (the slow, public, expensive court process a will goes through).'},
+ {id:'l2',t:'Trust vs. will',b:'A will still goes through probate &mdash; months to years, public, and costly. A funded living trust skips probate, stays private, and protects you if you become incapacitated. Most people keep a small &ldquo;pour-over will&rdquo; as a backup that sweeps anything you forgot into the trust.'},
+ {id:'l3',t:'Revocable vs. irrevocable',b:'Revocable: you keep full control and can change or cancel it anytime &mdash; the common starting choice (doesn&rsquo;t lower estate tax). Irrevocable: you give up control, but it can shield assets and cut estate taxes (for example an ILIT that owns your life insurance).'},
+ {id:'l4',t:'The four roles',b:'Grantor/Settlor &mdash; you, who creates it. Trustee &mdash; you, who runs it while alive. Successor Trustee &mdash; who takes over when you can&rsquo;t. Beneficiaries &mdash; who inherits (your kids). Pick a successor trustee you trust completely, plus a backup.'},
+ {id:'l5',t:'Funding is everything',b:'A trust only controls what you actually re-title into it. An unfunded trust is just paper. The real work is moving your home, accounts, business and valuables into the trust&rsquo;s name &mdash; track that in &ldquo;Fund it&rdquo; below.'},
+ {id:'l6',t:'How to fund each asset',b:'Home: a new deed naming your trust, notarized and recorded at the county. Bank/investment: re-title to &ldquo;[You], Trustee of [Your] Living Trust.&rdquo; Cars: re-title or use transfer-on-death (watch fees/insurance). Business/LLC: an &ldquo;Assignment of Interest&rdquo; &mdash; check your operating agreement first.'},
+ {id:'l7',t:'What NOT to put in',b:'Retirement accounts (IRA/401k) and life insurance pass by beneficiary designation, not the trust &mdash; keep those named and current. You can name your trust as the beneficiary so the payout is handled by your plan.'},
+ {id:'l8',t:'Life insurance + borrowing',b:'Permanent (whole/universal) policies build cash value you can borrow against &mdash; usually up to about 90%, as a tax-free loan at roughly 4&ndash;8% interest, no credit check. But unpaid loans plus interest shrink the death benefit, and if they exceed the cash value the policy can lapse (a taxable event). Term life has no cash value to borrow.'},
+ {id:'l9',t:'Kids & digital assets',b:'For minors, name a guardian and set ages when they inherit (e.g. portions at 25 and 30) so they don&rsquo;t get a lump sum too young. Don&rsquo;t forget digital assets &mdash; logins, photos, crypto &mdash; note where they live and who can access them.'},
+ {id:'l10',t:'Keep it updated',b:'Revisit yearly and after big changes &mdash; new asset, new baby, a move, marriage. Update with a simple amendment, store documents safely, and make sure your successor trustee knows where to find everything.'}
+];
+var TRUST_SETUP=[
+ {id:'s1',t:'Decide revocable vs irrevocable (most start revocable)'},
+ {id:'s2',t:'Inventory all your assets + values (use Fund it below)'},
+ {id:'s3',t:'Choose your successor trustee + a backup'},
+ {id:'s4',t:'Name beneficiaries (your kids) + guardians for minors'},
+ {id:'s5',t:'Get the trust drafted (estate attorney or reputable service)'},
+ {id:'s6',t:'Sign + notarize the trust'},
+ {id:'s7',t:'FUND it &mdash; re-title each asset into the trust'},
+ {id:'s8',t:'Add a pour-over will, Durable POA + healthcare directive'},
+ {id:'s9',t:'Store documents safely; tell your successor trustee'},
+ {id:'s10',t:'Review yearly / after big life changes'}
+];
+function trustInit(){ S.trust=S.trust||{}; S.trust.lessons=S.trust.lessons||{}; S.trust.setup=S.trust.setup||{}; S.trust.assets=S.trust.assets||[]; S.trust.benes=S.trust.benes||[]; S.trust.policies=S.trust.policies||[]; }
+function tmoney(n){ return '$'+Number(n||0).toLocaleString('en-US'); }
+function togTL(id){ trustInit(); S.trust.lessons[id]=!S.trust.lessons[id]; save(); renderTrust(); }
+function togTS(id){ trustInit(); S.trust.setup[id]=!S.trust.setup[id]; save(); renderTrust(); }
+function addAsset(){ trustInit(); var n=(($('asName')||{}).value||'').trim(); if(!n)return; S.trust.assets.push({id:Date.now(),name:n,type:$('asType').value,val:+($('asVal').value)||0,inTrust:false}); $('asName').value='';$('asVal').value=''; save(); renderTrust(); }
+function delAsset(id){ S.trust.assets=S.trust.assets.filter(function(a){return a.id!==id;}); save(); renderTrust(); }
+function togAsset(id){ var a=S.trust.assets.find(function(x){return x.id===id;}); if(a){a.inTrust=!a.inTrust;save();renderTrust();} }
+function addBene(){ trustInit(); var n=(($('beName')||{}).value||'').trim(); if(!n)return; S.trust.benes.push({id:Date.now(),name:n,rel:($('beRel').value||'').trim(),share:+($('beShare').value)||0}); $('beName').value='';$('beRel').value='';$('beShare').value=''; save(); renderTrust(); }
+function delBene(id){ S.trust.benes=S.trust.benes.filter(function(b){return b.id!==id;}); save(); renderTrust(); }
+function addPolicy(){ trustInit(); var n=(($('poName')||{}).value||'').trim(); if(!n)return; S.trust.policies.push({id:Date.now(),name:n,type:$('poType').value,death:+($('poDeath').value)||0,cash:+($('poCash').value)||0,rate:+($('poRate').value)||0}); $('poName').value='';$('poDeath').value='';$('poCash').value='';$('poRate').value=''; save(); renderTrust(); }
+function delPolicy(id){ S.trust.policies=S.trust.policies.filter(function(p){return p.id!==id;}); save(); renderTrust(); }
+function renderTrust(){
+  if(!$('trustLessons'))return; trustInit(); var T=S.trust;
+  var ld=Object.keys(T.lessons).filter(function(k){return T.lessons[k];}).length;
+  var sd=Object.keys(T.setup).filter(function(k){return T.setup[k];}).length;
+  var inT=T.assets.filter(function(a){return a.inTrust;}).length;
+  var estate=T.assets.reduce(function(s,a){return s+(a.val||0);},0)+T.policies.reduce(function(s,p){return s+(p.death||0);},0);
+  $('trustStats').innerHTML='<div class="stat"><div class="statv">'+ld+'/'+TRUST_LESSONS.length+'</div><div class="statl">Lessons</div></div>'+
+    '<div class="stat"><div class="statv">'+sd+'/'+TRUST_SETUP.length+'</div><div class="statl">Setup steps</div></div>'+
+    '<div class="stat hl"><div class="statv">'+inT+'/'+T.assets.length+'</div><div class="statl">Assets in trust</div></div>'+
+    '<div class="stat"><div class="statv" style="font-size:22px">'+tmoney(estate)+'</div><div class="statl">Estate value</div></div>';
+  $('trustLessons').innerHTML=TRUST_LESSONS.map(function(l){var open=T.lessons[l.id];
+    return '<div class="item" style="align-items:flex-start"><input type="checkbox" class="check" '+(open?'checked':'')+' onchange="togTL(\''+l.id+'\')"><div class="grow" style="cursor:pointer" onclick="togTL(\''+l.id+'\')"><div class="t"><b>'+l.t+'</b></div>'+(open?('<div class="m" style="line-height:1.55;margin-top:5px">'+l.b+'</div>'):'<div class="m">Tap to read</div>')+'</div></div>';
+  }).join('');
+  $('trustSetup').innerHTML=TRUST_SETUP.map(function(st){var d=T.setup[st.id];
+    return '<label class="item" style="cursor:pointer"><input type="checkbox" class="check" '+(d?'checked':'')+' onchange="togTS(\''+st.id+'\')"><div class="grow"><div class="t" '+(d?'style="opacity:.5;text-decoration:line-through"':'')+'>'+st.t+'</div></div></label>';
+  }).join('');
+  var ic={Home:'🏠',Car:'🚗',Business:'💼','Bank/Investment':'🏦',Valuable:'💎',Other:'📦'};
+  $('trustAssets').innerHTML=T.assets.length?T.assets.map(function(a){
+    return '<div class="item"><div class="grow"><div class="t">'+(ic[a.type]||'📦')+' '+esc(a.name)+' <span class="muted">'+tmoney(a.val)+'</span></div><div class="m" style="margin-top:3px"><label style="cursor:pointer"><input type="checkbox" style="vertical-align:-2px" '+(a.inTrust?'checked':'')+' onchange="togAsset('+a.id+')"> '+(a.inTrust?'In the trust &#10003;':'Not yet titled in trust')+'</label></div></div><button class="x fix" onclick="delAsset('+a.id+')">&#10005;</button></div>';
+  }).join(''):'<div class="muted">Add your home, cars, business, accounts and valuables above.</div>';
+  $('trustBenes').innerHTML=T.benes.length?T.benes.map(function(b){
+    return '<div class="item"><div class="grow"><div class="t">'+esc(b.name)+(b.rel?(' <span class="muted">'+esc(b.rel)+'</span>'):'')+'</div>'+(b.share?('<div class="m">'+b.share+'% share</div>'):'')+'</div><button class="x fix" onclick="delBene('+b.id+')">&#10005;</button></div>';
+  }).join(''):'<div class="muted">Add your kids / heirs above.</div>';
+  $('trustPolicies').innerHTML=T.policies.length?T.policies.map(function(p){
+    var term=(p.type||'').indexOf('Term')>=0; var borrow=term?0:Math.round((p.cash||0)*0.9);
+    var info=term?'<div class="m" style="margin-top:6px">Term life has no cash value to borrow against &mdash; it only pays the death benefit.</div>'
+      :'<div class="reco" style="margin-top:8px"><b>Borrow up to ~'+tmoney(borrow)+'</b> (about 90% of '+tmoney(p.cash)+' cash value). Tax-free policy loan'+(p.rate?(' at ~'+p.rate+'%/yr'):'')+'. Heads-up: unpaid loan + interest reduces the '+tmoney(p.death)+' death benefit and can lapse the policy if it grows past the cash value.</div>';
+    return '<div class="card" style="margin:8px 0;padding:14px"><div class="row"><div class="grow"><div class="t"><b>'+esc(p.name)+'</b> <span class="muted">'+esc(p.type)+'</span></div><div class="m">Death benefit '+tmoney(p.death)+' &middot; Cash value '+tmoney(p.cash)+'</div></div><button class="x fix" onclick="delPolicy('+p.id+')">&#10005;</button></div>'+info+'</div>';
+  }).join(''):'<div class="muted">Add a policy to see your borrowing power.</div>';
+}
 /* ---------- init ---------- */
 $('recoBtn').onclick=getReco;
 function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{seedPeptides();migratePepTimes();migratePepV3();renderPeptides();renderPepWeek();}catch(e){}
+try{renderTrust();}catch(e){}
   const key=todayStr(); if(S.recoCache[key])$('recoBox').innerHTML=S.recoCache[key];}
 renderAll();
 hydrate();
