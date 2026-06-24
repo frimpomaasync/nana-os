@@ -1067,23 +1067,23 @@ var SEED_PEPS=[
  {id:1001,name:'Retatrutide',color:'#E08A2B',vial:24,water:2.4,conc:'10 mg/mL',
   dose1:'1 mg',units1:'10 units',dose3:'4 → 8 → 12 mg (titrate up)',units3:'40 → 80 → 100 units',
   benefits:'Investigational triple agonist (GLP-1 + GIP + glucagon). In trials it drives strong appetite control and weight loss, raises resting fat-burning, clears liver fat, and improves blood pressure & cholesterol. Still in Phase 3 trials; nausea/GI effects are common early on.',
-  days:['Mon'],time:'05:10',hist:{}},
+  days:['Mon'],time:'09:00',hist:{}},
  {id:1002,name:'MOTS-c',color:'#2F6BD8',vial:10,water:1,conc:'10 mg/mL',
   dose1:'5 mg',units1:'50 units',dose3:'5 mg',units3:'50 units',
   benefits:'Mitochondrial-derived peptide. Improves mitochondrial efficiency and ATP/energy, helps glucose & insulin metabolism, supports exercise capacity and metabolic health, and is anti-inflammatory.',
-  days:['Mon','Wed','Fri'],time:'05:15',hist:{}},
+  days:['Mon','Wed','Fri'],time:'09:05',hist:{}},
  {id:1003,name:'GHK-Cu',color:'#3FA45C',vial:100,water:1.5,conc:'~67 mg/mL',
   dose1:'1 mg',units1:'2 units',dose3:'2 mg',units3:'3 units',
-  benefits:'Copper repair peptide. Stimulates collagen & elastin, drives wound healing and skin/hair repair, and has antioxidant + anti-inflammatory activity — the body’s own “repair” signal that declines with age. (Not in your morning table — set your own day.)',
-  days:[],time:'05:10',hist:{}},
+  benefits:'Copper repair peptide. Stimulates collagen & elastin, drives wound healing and skin/hair repair, and has antioxidant + anti-inflammatory activity — the body’s own “repair” signal that declines with age. Take as a morning dose; a common start is 1 mg 3×/week (here: Mon · Wed · Fri). Copper peptides are often cycled ~30 days on, 14 off.',
+  days:['Mon','Wed','Fri'],time:'09:15',hist:{}},
  {id:1004,name:'NAD+',color:'#8A5CD8',vial:750,water:7.5,conc:'100 mg/mL',
   dose1:'50 mg',units1:'50 units',dose3:'100 mg',units3:'100 units',
   benefits:'Coenzyme central to cellular energy — shuttles electrons to make ATP in your mitochondria, and supports DNA repair and sirtuins. Used for energy, mental clarity, recovery and anti-aging (strong human evidence is still limited).',
-  days:['Tue','Thu','Sat'],time:'05:10',hist:{}},
+  days:['Tue','Thu','Sat'],time:'09:00',hist:{}},
  {id:1005,name:'Glutathione',color:'#D8453F',vial:1500,water:3,conc:'500 mg/mL',
   dose1:'200 mg',units1:'40 units',dose3:'400 mg',units3:'80 units',
   benefits:'Your “master antioxidant” (a tripeptide). Neutralizes free radicals, supports liver detox and immune function, regenerates vitamins C & E, and is used for skin brightening (it dials down melanin).',
-  days:['Tue','Fri'],time:'05:20',hist:{}}
+  days:['Tue','Fri'],time:'09:10',hist:{}}
 ];
 function seedPeptides(){
   if(S.pepSeeded)return; S.peptides=S.peptides||[];
@@ -1135,9 +1135,19 @@ function renderPeptides(){
       +'<div class="row" style="margin-top:8px"><button class="btn fix" onclick="pepGCal('+p.id+')"><i data-ic="cal"></i>Add schedule to Google Calendar</button></div></div>';
   }).join('');
 }
+function migratePepTimes(){
+  if(S.pepTimeFixed)return;
+  var map={'05:10':'09:00','05:15':'09:05','05:20':'09:10'};
+  var note='Take as a morning dose; a common start is 1 mg 3×/week (here: Mon · Wed · Fri). Copper peptides are often cycled ~30 days on, 14 off.';
+  (S.peptides||[]).forEach(function(p){
+    if(map[p.time])p.time=map[p.time];
+    if(p.name==='GHK-Cu'){ p.days=['Mon','Wed','Fri']; p.time='09:15'; if(p.benefits)p.benefits=p.benefits.replace('(Not in your morning table — set your own day.)',note); }
+  });
+  S.pepTimeFixed=true; save();
+}
 /* ---------- init ---------- */
 $('recoBtn').onclick=getReco;
-function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{seedPeptides();renderPeptides();renderPepWeek();}catch(e){}
+function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{seedPeptides();migratePepTimes();renderPeptides();renderPepWeek();}catch(e){}
   const key=todayStr(); if(S.recoCache[key])$('recoBox').innerHTML=S.recoCache[key];}
 renderAll();
 hydrate();
