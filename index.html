@@ -417,7 +417,7 @@ h4.sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(
   </div>
   <div class="card">
     <h2><span class="icbox"><i data-ic="layers"></i></span>Sync across devices</h2>
-    <div class="muted" id="syncMsg">Coming in the next update \u2014 your data will sync to your other devices, encrypted so only you can read it.</div>
+    <div id="syncBox"></div>
   </div>
 </section>
 </div>
@@ -475,7 +475,7 @@ let S;
 try{S = JSON.parse(localStorage.getItem('lifeos')||'null') || DEF;}catch(e){S = DEF;}
 S.events = S.events || [];
 S.gcal = S.gcal || []; S.gcalAt = S.gcalAt || 0;
-function save(){localStorage.setItem('lifeos',JSON.stringify(S));try{localStorage.setItem('lifeos_safety',JSON.stringify({at:Date.now(),data:S}));}catch(e){}}
+function save(){localStorage.setItem('lifeos',JSON.stringify(S));try{localStorage.setItem('lifeos_safety',JSON.stringify({at:Date.now(),data:S}));localStorage.setItem('lifeos_lastT',String(Date.now()));syncPushSoon();}catch(e){}}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const todayStr=()=>new Date().toISOString().slice(0,10);
@@ -887,6 +887,97 @@ function showSafety(){
     n.textContent=b?('Auto safety-copy on this device from '+new Date(b.at).toLocaleString()+'.'):'Your data saves automatically on this device.';
   }catch(e){}
 }
+/* ---------- encrypted cross-device sync (your own Hostinger server) ---------- */
+const SYNC_URL='https://synkasa.com/sync.php';
+function syncCfg(){try{return JSON.parse(localStorage.getItem('lifeos_sync')||'null');}catch(e){return null;}}
+function setSyncCfg(c){localStorage.setItem('lifeos_sync',JSON.stringify(c));}
+function _b64(buf){return btoa(String.fromCharCode.apply(null,new Uint8Array(buf)));}
+function _ub64(s){return Uint8Array.from(atob(s),c=>c.charCodeAt(0));}
+async function _deriveKey(pass,salt){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function _encrypt(obj,pass){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await _deriveKey(pass,salt);
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(obj)));
+  return {v:1,salt:_b64(salt),iv:_b64(iv),ct:_b64(ct)};
+}
+async function _decrypt(pl,pass){
+  const key=await _deriveKey(pass,_ub64(pl.salt));
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:_ub64(pl.iv)},key,_ub64(pl.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function _collect(){
+  const d={_t:Date.now(),store:{}};
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k==='lifeos_sync'||k==='lifeos_safety'||k==='lifeos_lastT')continue;d.store[k]=localStorage.getItem(k);}
+  return d;
+}
+let _pushT=null;
+function syncPushSoon(){const c=syncCfg();if(!c||!c.on)return;clearTimeout(_pushT);_pushT=setTimeout(syncPush,2500);}
+async function syncPush(){
+  const c=syncCfg();if(!c||!c.on)return false;
+  try{
+    const d=_collect();
+    const pl=await _encrypt(d,c.pass);
+    const r=await fetch(SYNC_URL+'?id='+encodeURIComponent(c.id),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pl)});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    localStorage.setItem('lifeos_lastT',String(d._t));
+    c.last=Date.now();setSyncCfg(c);renderSync();return true;
+  }catch(e){renderSync();return false;}
+}
+async function syncPull(opts){
+  opts=opts||{};const c=syncCfg();if(!c||!c.on)return false;
+  try{
+    const r=await fetch(SYNC_URL+'?id='+encodeURIComponent(c.id),{cache:'no-store'});
+    const pl=await r.json();
+    if(!pl||!pl.ct){if(opts.alert)alert('Nothing to pull yet from this sync code.');return false;}
+    const data=await _decrypt(pl,c.pass);
+    const localT=parseInt(localStorage.getItem('lifeos_lastT')||'0',10)||0;
+    if(opts.force || (data._t && data._t>localT)){
+      for(const k in data.store){localStorage.setItem(k,data.store[k]);}
+      localStorage.setItem('lifeos_lastT',String(data._t||Date.now()));
+      c.last=Date.now();setSyncCfg(c);return true;
+    }
+    return false;
+  }catch(e){if(opts.alert)alert('Could not sync — check the code/passphrase, or you may be offline.');return false;}
+}
+function _randId(){return Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>('0'+b.toString(16)).slice(-2)).join('');}
+async function syncEnable(){
+  const pass=(($('syncPass')||{}).value||'');
+  if(pass.length<6){alert('Choose a passphrase of at least 6 characters (and remember it!).');return;}
+  setSyncCfg({id:_randId(),pass,on:true,last:0});
+  await syncPush();renderSync();
+}
+async function syncConnect(){
+  const code=(($('syncCode')||{}).value||'').trim();
+  const pass=(($('syncPass2')||{}).value||'');
+  if(code.length<12||pass.length<6){alert('Enter the sync code and the passphrase from your other device.');return;}
+  setSyncCfg({id:code,pass,on:true,last:0});
+  const ok=await syncPull({force:true,alert:true});
+  if(ok){location.reload();}else{renderSync();}
+}
+function syncOff(){const c=syncCfg();if(c){c.on=false;setSyncCfg(c);}renderSync();}
+function renderSync(){
+  const box=$('syncBox');if(!box)return;const c=syncCfg();
+  if(c&&c.on){
+    box.innerHTML=
+      '<div class="muted">Sync is <b>on</b>. Your data is encrypted on this device before it leaves — your server only ever stores scrambled text.</div>'+
+      '<h4 class="sub">Your sync code</h4>'+
+      '<div class="row"><input id="syncCodeShow" readonly value="'+esc(c.id)+'"><button class="btn ghost fix" onclick="(navigator.clipboard&&navigator.clipboard.writeText(\''+c.id+'\'));this.textContent=\'Copied\'"><i data-ic="layers" data-s="14"></i>Copy</button></div>'+
+      '<div class="sectionnote">On your other device, open the Data tab → "Connect to an existing sync" → paste this code + the same passphrase.</div>'+
+      '<div class="row" style="margin-top:10px"><button class="btn fix" onclick="syncPull({force:true}).then(o=>{if(o)location.reload();})"><i data-ic="refresh"></i>Pull latest</button><button class="btn ghost fix" onclick="syncPush()"><i data-ic="save"></i>Push now</button><button class="btn ghost fix" onclick="syncOff()">Turn off</button></div>'+
+      '<div class="sectionnote" style="margin-top:8px">'+(c.last?('Last synced '+new Date(c.last).toLocaleString()+'.'):'Not synced yet.')+'</div>';
+  }else{
+    box.innerHTML=
+      '<div class="muted">Keep your phone and laptop in step. Your data is encrypted with a passphrase only you know — the server can never read it.</div>'+
+      '<h4 class="sub">Start sync on this device</h4>'+
+      '<div class="row"><input id="syncPass" type="password" placeholder="Choose a passphrase (remember it!)"><button class="btn fix" onclick="syncEnable()"><i data-ic="layers"></i>Turn on sync</button></div>'+
+      '<h4 class="sub">Or connect to an existing sync</h4>'+
+      '<div class="row"><input id="syncCode" placeholder="Sync code from your other device"></div>'+
+      '<div class="row" style="margin-top:6px"><input id="syncPass2" type="password" placeholder="Same passphrase"><button class="btn fix" onclick="syncConnect()">Connect</button></div>';
+  }
+}
 /* ---------- init ---------- */
 $('recoBtn').onclick=getReco;
 function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();
@@ -894,6 +985,8 @@ function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();r
 renderAll();
 hydrate();
 try{showSafety();}catch(e){}
+try{renderSync();}catch(e){}
+try{if(syncCfg()&&syncCfg().on)syncPull().then(ch=>{if(ch)location.reload();});}catch(e){}
 if(Date.now()-S.gcalAt>6*3600000){try{syncGcal();}catch(e){}}
 const QUOTES=["Discipline is the bridge between goals and accomplishment.","It is all a part of the process.","She believed she could, so she did.","Slow is smooth, smooth is fast.","The moon does not fight the dark. It simply shines."];
 $('heroQuote').textContent='"'+QUOTES[new Date().getDate()%QUOTES.length]+'"';
