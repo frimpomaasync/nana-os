@@ -175,6 +175,8 @@ h4.sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(
   <button data-t="brain"><i data-ic="brain"></i>Brain</button>
   <button data-t="money"><i data-ic="coin"></i>Money</button>
   <button data-t="content"><i data-ic="pen"></i>Content</button>
+  <button data-t="mission"><i data-ic="rocket"></i>Mission</button>
+  <button data-t="week"><i data-ic="cal"></i>Week</button>
   <button data-t="peptides"><i data-ic="vial"></i>Peptides</button>
   <button data-t="data"><i data-ic="save"></i>Data</button>
 </nav>
@@ -404,9 +406,14 @@ h4.sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(
   <div class="embednote">Frimpomaa content generator.</div>
   <div class="embedwrap"><iframe class="appframe" id="frame-content" title="Frimpomaa Content Generator" referrerpolicy="no-referrer"></iframe></div>
 </section>
+<!-- MISSION CONTROL -->
+<section class="tab" id="tab-mission"><div class="embedwrap"><iframe class="appframe" id="frame-mission" title="Mission Control" referrerpolicy="no-referrer"></iframe></div></section>
+<!-- CONTENT WEEK -->
+<section class="tab" id="tab-week"><div class="embedwrap"><iframe class="appframe" id="frame-week" title="Content Week" referrerpolicy="no-referrer"></iframe></div></section>
 <!-- PEPTIDES -->
 <section class="tab" id="tab-peptides">
   <div class="banner" style="border-color:var(--line2)"><i data-ic="vial"></i><b>For organizing your own regimen.</b> This does the reconstitution math and tracks your doses — it’s educational, not medical advice. Follow your prescriber and sterile technique.</div>
+  <div class="card" style="margin-bottom:14px"><h2><span class="icbox"><i data-ic="cal"></i></span>Your weekly schedule</h2><div class="muted" style="margin-bottom:8px">Morning injections by day. Tap any peptide below to push its schedule to Google Calendar.</div><div id="pepWeek"></div></div>
   <div class="card" style="margin-bottom:14px">
     <h2><span class="icbox"><i data-ic="vial"></i></span>Add a peptide</h2>
     <div class="row" style="margin-bottom:8px"><input id="pName" placeholder="Name (e.g. BPC-157)"></div>
@@ -1055,9 +1062,82 @@ function renderPeptides(){
     +'<div class="row" style="margin-top:8px"><button class="btn fix" onclick="pepGCal('+p.id+')"><i data-ic="cal"></i>Add schedule to Google Calendar</button></div></div>';
   }).join('');
 }
+/* ---------- peptide protocol (her data + research) ---------- */
+var SEED_PEPS=[
+ {id:1001,name:'Retatrutide',color:'#E08A2B',vial:24,water:2.4,conc:'10 mg/mL',
+  dose1:'1 mg',units1:'10 units',dose3:'4 → 8 → 12 mg (titrate up)',units3:'40 → 80 → 100 units',
+  benefits:'Investigational triple agonist (GLP-1 + GIP + glucagon). In trials it drives strong appetite control and weight loss, raises resting fat-burning, clears liver fat, and improves blood pressure & cholesterol. Still in Phase 3 trials; nausea/GI effects are common early on.',
+  days:['Mon'],time:'05:10',hist:{}},
+ {id:1002,name:'MOTS-c',color:'#2F6BD8',vial:10,water:1,conc:'10 mg/mL',
+  dose1:'5 mg',units1:'50 units',dose3:'5 mg',units3:'50 units',
+  benefits:'Mitochondrial-derived peptide. Improves mitochondrial efficiency and ATP/energy, helps glucose & insulin metabolism, supports exercise capacity and metabolic health, and is anti-inflammatory.',
+  days:['Mon','Wed','Fri'],time:'05:15',hist:{}},
+ {id:1003,name:'GHK-Cu',color:'#3FA45C',vial:100,water:1.5,conc:'~67 mg/mL',
+  dose1:'1 mg',units1:'2 units',dose3:'2 mg',units3:'3 units',
+  benefits:'Copper repair peptide. Stimulates collagen & elastin, drives wound healing and skin/hair repair, and has antioxidant + anti-inflammatory activity — the body’s own “repair” signal that declines with age. (Not in your morning table — set your own day.)',
+  days:[],time:'05:10',hist:{}},
+ {id:1004,name:'NAD+',color:'#8A5CD8',vial:750,water:7.5,conc:'100 mg/mL',
+  dose1:'50 mg',units1:'50 units',dose3:'100 mg',units3:'100 units',
+  benefits:'Coenzyme central to cellular energy — shuttles electrons to make ATP in your mitochondria, and supports DNA repair and sirtuins. Used for energy, mental clarity, recovery and anti-aging (strong human evidence is still limited).',
+  days:['Tue','Thu','Sat'],time:'05:10',hist:{}},
+ {id:1005,name:'Glutathione',color:'#D8453F',vial:1500,water:3,conc:'500 mg/mL',
+  dose1:'200 mg',units1:'40 units',dose3:'400 mg',units3:'80 units',
+  benefits:'Your “master antioxidant” (a tripeptide). Neutralizes free radicals, supports liver detox and immune function, regenerates vitamins C & E, and is used for skin brightening (it dials down melanin).',
+  days:['Tue','Fri'],time:'05:20',hist:{}}
+];
+function seedPeptides(){
+  if(S.pepSeeded)return; S.peptides=S.peptides||[];
+  SEED_PEPS.forEach(function(seed){ if(!S.peptides.find(function(p){return p.name===seed.name;})) S.peptides.push(JSON.parse(JSON.stringify(seed))); });
+  S.pepSeeded=true; save();
+}
+function fmtTime(t){ if(!t)return ''; var pr=t.split(':'),h=+pr[0],m=pr[1],ap=h>=12?'PM':'AM',hh=h%12; if(hh===0)hh=12; return hh+':'+m+' '+ap; }
+function _nextDay(days){
+  if(!days||!days.length)return todayStr();
+  var map={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6},want=days.map(function(d){return map[d];});
+  for(var i=0;i<7;i++){var dt=new Date(Date.now()+i*86400000);if(want.indexOf(dt.getDay())>=0)return dt.toISOString().slice(0,10);}
+  return todayStr();
+}
+function renderPepWeek(){
+  var box=$('pepWeek'); if(!box)return;
+  var days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  box.innerHTML=days.map(function(d){
+    var items=(S.peptides||[]).filter(function(p){return p.days&&p.days.indexOf(d)>=0;})
+      .sort(function(a,b){return (a.time||'').localeCompare(b.time||'');})
+      .map(function(p){return '<span class="pill" style="background:'+(p.color||'#999')+'22;color:'+(p.color||'#333')+';border:1px solid '+(p.color||'#999')+'66">'+esc(p.name)+' · '+fmtTime(p.time)+'</span>';}).join(' ');
+    return '<div class="item"><div class="grow"><div class="t"><b>'+d+'</b></div><div class="m" style="gap:6px;flex-wrap:wrap;margin-top:4px">'+(items||'<span class="muted">Rest</span>')+'</div></div></div>';
+  }).join('');
+}
+function pepGCal(id){
+  var p=S.peptides.find(function(x){return x.id===id;}); if(!p)return;
+  var dmap={Sun:'SU',Mon:'MO',Tue:'TU',Wed:'WE',Thu:'TH',Fri:'FR',Sat:'SA'},rrule;
+  if(p.days&&p.days.length){ rrule='RRULE:FREQ=WEEKLY;BYDAY='+p.days.map(function(d){return dmap[d];}).join(',')+';COUNT=52'; }
+  else { var fr=PEP_FREQ[p.freq]||PEP_FREQ.daily; rrule=fr.rrule; }
+  var doseTxt=p.dose1?(p.dose1+(p.units1?(' ('+p.units1+')'):'')):(p.dose+p.unit+((typeof pepUnits==='function'&&pepUnits(p))?(' ('+_uTxt(pepUnits(p))+'u)'):''));
+  var title='💉 '+p.name+' '+doseTxt;
+  var details=p.name+' — '+doseTxt+'. '+(p.benefits?(p.benefits+' '):'')+'(From NaNa OS — not medical advice.)';
+  openGCal(title,_nextDay(p.days),p.time||'08:00',details,rrule);
+}
+function renderPeptides(){
+  var box=$('peptideList'); if(!box)return;
+  if(!S.peptides||!S.peptides.length){box.innerHTML='<div class="card muted">No peptides yet. Add one below — I’ll work out the exact units to draw and let you add the schedule to Google Calendar.</div>';return;}
+  var d=todayStr();
+  box.innerHTML=S.peptides.map(function(p){
+    var rich=!!(p.dose1||p.benefits), u=(typeof pepUnits==='function')?pepUnits(p):null, streak=Object.keys(p.hist||{}).length;
+    var dot=p.color?('<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:'+p.color+';margin-right:8px;vertical-align:middle"></span>'):'';
+    var sched=(p.days&&p.days.length)?(p.days.join(' · ')+' at '+fmtTime(p.time)):(rich?'Schedule: set your own day':(((PEP_FREQ[p.freq]||{}).label||'')+' · '+fmtTime(p.time)));
+    var recon=rich
+      ? ('<div class="reco" style="margin-top:10px"><b>'+esc(p.dose1)+'</b> → draw <b>'+esc(p.units1)+'</b> <span class="muted">(weeks 1–2)</span><br><b>'+esc(p.dose3)+'</b> → draw <b>'+esc(p.units3)+'</b> <span class="muted">(week 3+)</span><div class="m" style="margin-top:6px">Reconstitute '+esc(p.vial)+' mg vial with <b>'+esc(p.water)+' mL</b> BAC water → '+esc(p.conc)+'</div></div>')
+      : (u?('<div class="reco" style="margin-top:10px"><b>Draw '+_uTxt(u)+' units</b> on a U-100 syringe <span class="muted">('+(p.vial/p.water).toFixed(2)+' mg/mL after '+esc(p.water)+' mL BAC water)</span></div>'):'<div class="sectionnote" style="margin-top:8px">Add vial mg + BAC water mL + dose to calculate.</div>');
+    return '<div class="card" style="margin-bottom:12px"><div class="row"><div style="flex:1"><h3 style="font-size:16px;font-weight:800">'+dot+esc(p.name)+'</h3><div class="muted">'+esc(sched)+'</div></div><button class="x fix" onclick="delPeptide('+p.id+')">✕</button></div>'
+      +(p.benefits?('<div class="muted" style="margin-top:9px;line-height:1.55">'+esc(p.benefits)+'</div>'):'')
+      +recon
+      +'<label class="item" style="margin-top:10px;cursor:pointer"><input type="checkbox" class="check" '+((p.hist&&p.hist[d])?'checked':'')+' onchange="togPep('+p.id+')"><div class="grow"><div class="t">Took today’s dose</div><div class="m"><span class="streak"><i data-ic="flame" data-s="12"></i>'+streak+' logged</span></div></div></label>'
+      +'<div class="row" style="margin-top:8px"><button class="btn fix" onclick="pepGCal('+p.id+')"><i data-ic="cal"></i>Add schedule to Google Calendar</button></div></div>';
+  }).join('');
+}
 /* ---------- init ---------- */
 $('recoBtn').onclick=getReco;
-function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{renderPeptides();}catch(e){}
+function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{seedPeptides();renderPeptides();renderPepWeek();}catch(e){}
   const key=todayStr(); if(S.recoCache[key])$('recoBox').innerHTML=S.recoCache[key];}
 renderAll();
 hydrate();
@@ -1076,7 +1156,7 @@ function b64toUtf8(b64){
   return new TextDecoder('utf-8').decode(bytes);
 }
 var EMBEDS={money:{src:'src-money',frame:'frame-money',loaded:false},
-            content:{src:'src-content',frame:'frame-content',loaded:false}};
+            content:{src:'src-content',frame:'frame-content',loaded:false},mission:{url:'mission-control.html',frame:'frame-mission',loaded:false},week:{url:'content-week.html',frame:'frame-week',loaded:false}};
 function sizeFrame(fr){
   try{var d=fr.contentDocument;
     var h=Math.max(d.documentElement.scrollHeight, d.body?d.body.scrollHeight:0);
@@ -1085,10 +1165,14 @@ function sizeFrame(fr){
 }
 function ensureEmbed(t){
   var e=EMBEDS[t]; if(!e||e.loaded)return;
-  var fr=$(e.frame), holder=$(e.src); if(!fr||!holder)return;
+  var fr=$(e.frame); if(!fr)return;
   e.loaded=true;
-  try{ fr.srcdoc='<!DOCTYPE html>'+b64toUtf8(holder.textContent); }
-  catch(err){ fr.removeAttribute('srcdoc'); fr.srcdoc='<p style="font-family:sans-serif;padding:24px">Could not load this app: '+(err.message||err)+'</p>'; return; }
+  if(e.url){ fr.src=e.url; }
+  else {
+    var holder=$(e.src); if(!holder){e.loaded=false;return;}
+    try{ fr.srcdoc='<!DOCTYPE html>'+b64toUtf8(holder.textContent); }
+    catch(err){ fr.removeAttribute('srcdoc'); fr.srcdoc='<p style="font-family:sans-serif;padding:24px">Could not load this app: '+(err.message||err)+'</p>'; return; }
+  }
   fr.addEventListener('load',function(){
     sizeFrame(fr);
     [300,1000,2200,4500,8000].forEach(function(ms){setTimeout(function(){sizeFrame(fr);},ms);});

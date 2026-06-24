@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nanaOS — Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Canonical SynKasa palette — locked from the Business Readiness Checker */
+  :root{
+    --bg:#FDF6ED; --paper:#FFFFFF; --ink:#1A1A1A; --copper:#C9975B; --copper-dark:#A07840;
+    --muted:#6B7280; --border:#E2D9CC; --soft:#F7F4F0; --green:#5C8A6A; --red:#A84A3A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background-color:#FDF6ED;
+    background-image:linear-gradient(180deg, #FBF1E2 0%, #FDF6ED 38%);
+    background-attachment:fixed;
+    color:var(--ink); font-family:'Outfit',sans-serif; line-height:1.5;
+    min-height:100vh; padding-bottom:60px; -webkit-font-smoothing:antialiased;
+  }
+  /* menu bar — light, editorial */
+  .menubar{
+    background-color:#FDF6ED;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 18px; font-family:'JetBrains Mono',monospace; font-size:12px;
+    color:var(--muted); position:sticky; top:0; z-index:50;
+    border-bottom:1px solid var(--border);
+  }
+  .menubar .left{display:flex; gap:12px; align-items:center}
+  .menubar .dot{width:8px;height:8px;border-radius:50%;background:var(--copper);display:inline-block}
+  .menubar .right{color:var(--ink); letter-spacing:.5px}
+  .wrap{max-width:1060px; margin:0 auto; padding:30px 20px}
+  h1{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:42px; letter-spacing:.2px; line-height:1.05}
+  .sub{color:var(--muted); font-size:14.5px; margin-top:6px; max-width:680px}
+  h2{font-family:'Cormorant Garamond',serif; font-weight:600; font-size:24px; margin:0; color:var(--ink)}
+  .mono{font-family:'JetBrains Mono',monospace}
+  /* panels — white paper cards */
+  .panel{
+    background-color:#FFFFFF; border:1px solid var(--border);
+    border-radius:14px; padding:20px 22px; margin:18px 0;
+    box-shadow:0 1px 2px rgba(26,26,26,.04), 0 10px 30px rgba(26,26,26,.04);
+  }
+  .panel.flat{box-shadow:none}
+  .gate{border-left:3px solid var(--copper)}
+  .gate h2{color:var(--ink)}
+  .gate .item{padding:10px 0; border-bottom:1px solid var(--soft); font-size:14px}
+  .gate .item:last-child{border-bottom:none}
+  .gate .item.resolved b{color:var(--green)}
+  .gate b{font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600}
+  .swatches{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap}
+  .sw{font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:4px 8px; border-radius:6px; border:1px solid var(--border)}
+  /* stats */
+  .stats{display:flex; gap:12px; flex-wrap:wrap; margin:16px 0}
+  .stat{background-color:#FFFFFF; border:1px solid var(--border); border-radius:14px; padding:16px 18px; flex:1; min-width:130px; box-shadow:0 1px 2px rgba(26,26,26,.03)}
+  .stat .n{font-family:'Cormorant Garamond',serif; font-size:34px; font-weight:700; color:var(--ink); line-height:1}
+  .stat.accent .n{color:var(--copper)}
+  .stat .l{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-top:6px}
+  .bar{height:7px; background:var(--soft); border-radius:99px; overflow:hidden; margin-top:10px}
+  .bar > i{display:block; height:100%; background:var(--copper)}
+  /* top 3 */
+  .top3 li{list-style:none; padding:10px 0; border-bottom:1px solid var(--soft); font-size:14.5px; display:flex; gap:12px; align-items:baseline}
+  .top3 li:last-child{border-bottom:none}
+  .top3 .rank{font-family:'Cormorant Garamond',serif; font-weight:700; font-size:18px; color:var(--copper); width:18px}
+  /* filters — pill nav like the screenshot */
+  .filters{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 2px}
+  .filters button{
+    font-family:'Outfit',sans-serif; font-weight:500; font-size:12.5px; cursor:pointer;
+    background:transparent; border:1px solid var(--border); color:var(--ink);
+    padding:7px 14px; border-radius:99px; transition:.15s;
+  }
+  .filters button:hover{border-color:var(--copper)}
+  .filters button.on{background-color:#1A1A1A; color:#FDF6ED; border-color:#1A1A1A}
+  /* project + task */
+  .proj{margin-top:20px}
+  .proj .head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .proj .goal{color:var(--muted); font-size:13px; margin:4px 0 10px}
+  .star{color:var(--copper)}
+  .task{
+    display:flex; gap:12px; align-items:flex-start; padding:11px 12px; border-radius:10px;
+    border:1px solid transparent; transition:.12s;
+  }
+  .task:hover{background:var(--soft); border-color:var(--border)}
+  .task input{margin-top:2px; width:18px; height:18px; accent-color:var(--copper); cursor:pointer; flex:none}
+  .task .body{flex:1}
+  .task .t{font-size:14.5px; color:var(--ink)}
+  .task.done .t{text-decoration:line-through; color:var(--muted)}
+  .task .next{font-size:12.5px; color:var(--muted); margin-top:3px}
+  .tags{display:flex; gap:5px; flex-wrap:wrap; margin-top:6px}
+  .tag{font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 8px; border-radius:6px; letter-spacing:.3px}
+  .p0{background:#f4e0db; color:#8a3322} .p1{background:#f1e6d2; color:#8a5a16}
+  .p2{background:#eceae5; color:#56524a} .p3{background:#efece7; color:#7a766e}
+  .rev{background:#e3ebe2; color:#3c6147} .eff{background:#ece4d4; color:#6a5a36}
+  .warn{background:#f4e0db; color:#8a3322}
+  /* weekly review */
+  .review .step{padding:9px 0; border-bottom:1px solid var(--soft); font-size:14px; display:flex; gap:10px}
+  .review .step:last-child{border-bottom:none}
+  .review input{accent-color:var(--copper); width:17px;height:17px;margin-top:1px}
+  .meta{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); margin-top:12px}
+  .btn{font-family:'Outfit',sans-serif; font-weight:500; font-size:12.5px; cursor:pointer; background-color:#1A1A1A; color:#FDF6ED; border:none; padding:9px 16px; border-radius:99px; margin-top:10px; margin-right:6px}
+  .btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--border)}
+  footer{text-align:center; color:var(--muted); font-size:12px; margin-top:34px; font-family:'JetBrains Mono',monospace}
+  a{color:var(--copper-dark)}
+</style>
+</head>
+<body>
+<div class="menubar">
+  <div class="left"><span class="dot"></span><span id="user">founder@synkasa</span><span id="clock">—</span></div>
+  <div class="right">nanaOS · Command Center</div>
+</div>
+
+<div class="wrap">
+  <h1>Command Center</h1>
+  <div class="sub">Your projects, todos, and follow-ups in one owned place. Ranked by revenue × low-lift. Checkmarks save in this browser.</div>
+
+  <!-- GATE DECISIONS -->
+  <div class="panel gate">
+    <h2>Decisions that gate other work</h2>
+    <div class="item resolved"><b>1 · ✓ Name LOCKED.</b> Brand: <span class="mono">NaNa Frimpomaa</span> · handle <span class="mono">@frimpomaasync</span> · domain <span class="mono">frimpomaasync.com</span>. Legal <span class="mono">Frimpongmaa</span> only for payments/contracts.</div>
+    <div class="item resolved"><b>2 · ✓ Canonical palette — LOCKED.</b> Resolved from your Business Readiness Checker. This is the standard everywhere now:
+      <div class="swatches">
+        <span class="sw" style="background:#FDF6ED;color:#1A1A1A">bg #FDF6ED</span>
+        <span class="sw" style="background:#FFFFFF;color:#1A1A1A">paper #FFFFFF</span>
+        <span class="sw" style="background:#1A1A1A;color:#FDF6ED">ink #1A1A1A</span>
+        <span class="sw" style="background:#C9975B;color:#1A1A1A">copper #C9975B</span>
+        <span class="sw" style="background:#E2D9CC;color:#1A1A1A">border #E2D9CC</span>
+        <span class="sw" style="background:#FFFFFF;color:#6B7280">muted #6B7280</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="n" id="s-open">0</div><div class="l">Open tasks</div></div>
+    <div class="stat accent"><div class="n" id="s-done">0</div><div class="l">Done</div></div>
+    <div class="stat accent"><div class="n" id="s-rev">0</div><div class="l">$$$ revenue tasks</div></div>
+    <div class="stat"><div class="n" id="s-quick">0</div><div class="l">Quick wins left</div>
+      <div class="bar"><i id="s-progress" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <!-- TOP 3 -->
+  <div class="panel">
+    <h2>Today's Top 3</h2>
+    <ol class="top3" id="top3" style="margin-top:8px"></ol>
+    <div class="meta">Re-rank these every weekly review. Edit the <span class="mono">topToday</span> list in the file to change them.</div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="panel flat">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:18px;margin-bottom:8px">Filter the board</div>
+    <div class="filters" id="filters">
+      <button data-f="all" class="on">All</button>
+      <button data-f="p0">Gates (P0)</button>
+      <button data-f="p1">High (P1)</button>
+      <button data-f="quick">Quick wins</button>
+      <button data-f="rev">Revenue $$$</button>
+      <button data-f="open">Open only</button>
+    </div>
+  </div>
+
+  <!-- BOARD -->
+  <div id="board"></div>
+
+  <!-- WEEKLY REVIEW -->
+  <div class="panel review" style="border-top:3px solid var(--gold)">
+    <h2>Weekly review ritual</h2>
+    <div class="sub" style="margin-bottom:8px">Run this once a week (your automation will nudge you). ~15 minutes.</div>
+    <div class="step"><input type="checkbox" data-r="1">Mark off everything finished this week; move to the Done log in MASTER-TRACKER.md.</div>
+    <div class="step"><input type="checkbox" data-r="2">Scan for stalled loops — anything untouched 2+ weeks. Shrink it or schedule it.</div>
+    <div class="step"><input type="checkbox" data-r="3">Re-rank "Today's Top 3" by revenue × low-lift for the week ahead.</div>
+    <div class="step"><input type="checkbox" data-r="4">Check the two gate decisions — still open? Resolve or note why not.</div>
+    <div class="step"><input type="checkbox" data-r="5">Add anything new that surfaced. Keep entries lean and honest.</div>
+    <div class="meta">Last review: <span id="lastReview">never</span></div>
+    <button class="btn" id="markReviewed">Mark reviewed today</button>
+    <button class="btn ghost" id="resetReview">Reset checklist</button>
+  </div>
+
+  <footer>nanaOS Command Center · single file · offline · yours. Pair with MASTER-TRACKER.md for portable handoffs.</footer>
+</div>
+
+<script>
+// ---- DATA: projects + tasks (edit here to maintain) ----
+const PROJECTS = [
+  {id:"p1", name:"Portfolio Launch · frimpomaasync.com", goal:"A live one-page portfolio that flexes to whoever lands. The storefront for everything else.", star:false, tasks:[
+    {id:"p1a", t:"Set @frimpomaasync handle + NaNa Frimpomaa name across all platforms", pr:"p1", eff:"XS", rev:"$$", next:"✓ name locked — apply it everywhere"},
+    {id:"p1b", t:"Buy frimpomaasync.com on Hostinger", pr:"p1", eff:"S", rev:"$$", next:"Confirm it's free, buy now (backup .co)"},
+    {id:"p1c", t:"Upload index.html (anaindex.html) to Hostinger", pr:"p1", eff:"S", rev:"$$", next:"Rename to index.html, upload"},
+    {id:"p1d", t:"Swap the 3 Stripe Payment Link URLs into 'Start a build' buttons", pr:"p1", eff:"S", rev:"$$$", next:"Needs Stripe tiers (P2) first"},
+    {id:"p1e", t:"Replace footer social links (href='#') with real URLs", pr:"p2", eff:"XS", rev:"$"},
+    {id:"p1f", t:"Add one-line USP to About window — 'I make SaaS feel human for small businesses'", pr:"p2", eff:"XS", rev:"$"},
+    {id:"p1g", t:"Populate nanaOS Work window with 8–12 real videos, tagged + 1 context line", pr:"p2", eff:"M", rev:"$", next:"Depends on filming (P3)"},
+    {id:"p1h", t:"Standardize file to the locked brand palette", pr:"p1", eff:"S", rev:"$", next:"Depends on Decision 2"}
+  ]},
+  {id:"p2", name:"Done-For-You Tool Offer", goal:"Sell single-purpose custom tools at $800–$2,500. 'One tool, one job, owned by you, no subscription.' Validated BUILD-FIRST.", star:true, tasks:[
+    {id:"p2a", t:"Draft the 3 Stripe build tiers (names + inclusions + price split)", pr:"p1", eff:"S", rev:"$$$", next:"THE immediate next task per handoff"},
+    {id:"p2b", t:"Create the 3 Stripe Payment Links (50% deposit)", pr:"p1", eff:"S", rev:"$$$", next:"After tiers drafted"},
+    {id:"p2c", t:"Ask the validating question to 5–10 real people", pr:"p1", eff:"M", rev:"$$$", next:"'One annoying thing you wish was a simple button?'"},
+    {id:"p2d", t:"Build the most-requested tool (first product + first case study)", pr:"p1", eff:"L", rev:"$$$", next:"After validation answers"}
+  ]},
+  {id:"p3", name:"Tech UGC + Build-in-Public", goal:"Break into tech UGC, pitch big brands, build the portfolio. Faceless is an asset. 6 scripts written.", star:false, tasks:[
+    {id:"p3a", t:"Film the 6 UGC scripts — swap the late-night one for a Garden Office angle", pr:"p1", eff:"M", rev:"$", next:"Open each clip with nanaOS boot animation"},
+    {id:"p3b", t:"Build reusable Canva 'nanaOS video kit' (boot intro + lower-third)", pr:"p2", eff:"M", rev:"$"},
+    {id:"p3c", t:"Update IG / LinkedIn / TikTok bios to multifaceted versions", pr:"p1", eff:"XS", rev:"$", next:"Copy already written"},
+    {id:"p3d", t:"Apply to UGC platforms — Collabstr + Billo first", pr:"p2", eff:"S", rev:"$$", next:"Insense/JoinBrands once 5 samples exist"},
+    {id:"p3e", t:"Record faceless screen-walkthrough of first build, tag a target brand", pr:"p2", eff:"S", rev:"$", next:"After P2 build"}
+  ]},
+  {id:"p4", name:"Passive Products (Payhip)", goal:"Passive income floor under the custom-tool offer. Immersive, owned, single-file.", star:false, tasks:[
+    {id:"p4a", t:"Finalize 'The Offload Sanctuary' ($97) — iOS render, bg fix, Stripe, Payhip", pr:"p1", eff:"M", rev:"$$$", next:"✅ HTML in hand — finalize for launch"},
+    {id:"p4d", t:"Write Offload Sanctuary sales page + launch assets (founding $67 email, first post)", pr:"p2", eff:"M", rev:"$$$", next:"Lead with the Invisible Labor Audit hook"},
+    {id:"p4b", t:"The Brain Download ($39) — decide: build from scratch or drop from the ladder", pr:"p3", eff:"M", rev:"$$", next:"Doesn't exist yet (you confirmed)"},
+    {id:"p4c", t:"DinoCar additions — confirm full A–Z + add counting mini-game", pr:"p3", eff:"M", rev:"$", next:"✅ file in hand; phonics/tracing/read already built"},
+    {id:"p4e", t:"Place the Ikigai × Product Engine — portfolio case, lead-magnet, or paid tool", pr:"p2", eff:"S", rev:"$", next:"✅ on-brand, in hand"}
+  ]},
+  {id:"p5", name:"Govcon Door 1", goal:"Government contracting pipeline. Capability statements + outreach DONE; missing a prospect list.", star:false, tasks:[
+    {id:"p5a", t:"Register on eMMA", pr:"p2", eff:"S", rev:"$$"},
+    {id:"p5b", t:"Draft the first 10 outreach sends", pr:"p2", eff:"S", rev:"$$", next:"Cap statements already done"},
+    {id:"p5c", t:"Build prospect list from CBE / MDOT directories", pr:"p2", eff:"M", rev:"$$", next:"Requires Cowork (dynamic JS directories)"}
+  ]},
+  {id:"p6", name:"Content: World Cup Channel", goal:"Get the prediction channel live for the tournament window.", star:false, tasks:[
+    {id:"p6a", t:"Write group-stage prediction script batch (English + Twi)", pr:"p3", eff:"M", rev:"$"},
+    {id:"p6b", t:"Get the channel live", pr:"p3", eff:"S", rev:"$"}
+  ]},
+  {id:"p7", name:"Canva Brand Assets (supports UGC)", goal:"Finalize the boot-screen + carousel candidates into exact brand.", star:false, tasks:[
+    {id:"p7a", t:"Pick 1 of 4 boot-screen + 1 of 4 carousel candidates, adjust to brand", pr:"p2", eff:"S", rev:"$", next:"Canva output is color/font-approximate — expect a pick-then-adjust step"}
+  ]}
+];
+const topToday = [
+  "Buy frimpomaasync.com + set @frimpomaasync everywhere — name is locked",
+  "Draft the 3 Stripe build tiers — unlocks the whole offer",
+  "Update IG / LinkedIn / TikTok bios — copy's already written"
+];
+
+// ---- STATE ----
+const KEY="nanaos-cmd-v1";
+let state=JSON.parse(localStorage.getItem(KEY)||"{}");
+state.done=state.done||{}; state.review=state.review||{}; state.lastReview=state.lastReview||null;
+function save(){localStorage.setItem(KEY,JSON.stringify(state));}
+
+// ---- CLOCK ----
+function tick(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+tick(); setInterval(tick,15000);
+
+// ---- RENDER ----
+let filter="all";
+const quick=t=>["XS","S"].includes(t.eff);
+function visible(t){
+  if(filter==="all")return true;
+  if(filter==="open")return !state.done[t.id];
+  if(filter==="quick")return quick(t)&&!state.done[t.id];
+  if(filter==="rev")return t.rev==="$$$";
+  return t.pr===filter;
+}
+function tagEl(cls,txt){return `<span class="tag ${cls}">${txt}</span>`;}
+function render(){
+  const board=document.getElementById('board'); board.innerHTML="";
+  let open=0,done=0,rev=0,quickLeft=0,total=0;
+  PROJECTS.forEach(p=>{
+    const tasks=p.tasks.filter(visible);
+    p.tasks.forEach(t=>{total++; if(state.done[t.id])done++; else{open++; if(t.rev==="$$$")rev++; if(quick(t))quickLeft++;}});
+    if(!tasks.length)return;
+    const div=document.createElement('div'); div.className="panel proj";
+    div.innerHTML=`<div class="head"><h2>${p.star?'<span class="star">★</span> ':''}${p.name}</h2></div><div class="goal">${p.goal}</div>`;
+    tasks.forEach(t=>{
+      const d=!!state.done[t.id];
+      const row=document.createElement('div'); row.className="task"+(d?" done":"");
+      row.innerHTML=`<input type="checkbox" ${d?"checked":""} data-id="${t.id}">
+        <div class="body"><div class="t">${t.t}</div>
+        <div class="tags">${tagEl(t.pr,t.pr.toUpperCase())}${tagEl('eff',t.eff)}${tagEl('rev',t.rev)}${t.warn?tagEl('warn','needs file'):''}</div>
+        ${t.next?`<div class="next">→ ${t.next}</div>`:''}</div>`;
+      div.appendChild(row);
+    });
+    board.appendChild(div);
+  });
+  document.getElementById('s-open').textContent=open;
+  document.getElementById('s-done').textContent=done;
+  document.getElementById('s-rev').textContent=rev;
+  document.getElementById('s-quick').textContent=quickLeft;
+  document.getElementById('s-progress').style.width=total?Math.round(done/total*100)+"%":"0%";
+}
+document.getElementById('board').addEventListener('change',e=>{
+  if(e.target.dataset.id){state.done[e.target.dataset.id]=e.target.checked; save(); render();}
+});
+document.getElementById('filters').addEventListener('click',e=>{
+  if(!e.target.dataset.f)return;
+  filter=e.target.dataset.f;
+  [...document.querySelectorAll('#filters button')].forEach(b=>b.classList.toggle('on',b===e.target));
+  render();
+});
+// top 3
+document.getElementById('top3').innerHTML=topToday.map((x,i)=>`<li><span class="rank">${i+1}</span><span>${x}</span></li>`).join("");
+// weekly review
+function renderReview(){
+  document.querySelectorAll('[data-r]').forEach(c=>c.checked=!!state.review[c.dataset.r]);
+  document.getElementById('lastReview').textContent=state.lastReview||"never";
+}
+document.querySelector('.review').addEventListener('change',e=>{
+  if(e.target.dataset.r){state.review[e.target.dataset.r]=e.target.checked; save();}
+});
+document.getElementById('markReviewed').onclick=()=>{state.lastReview=new Date().toLocaleDateString(); save(); renderReview();};
+document.getElementById('resetReview').onclick=()=>{state.review={}; save(); renderReview();};
+render(); renderReview();
+</script>
+</body>
+</html>
