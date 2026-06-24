@@ -440,16 +440,8 @@ new MutationObserver(()=>hydrate()).observe(document.documentElement,{childList:
 
 /* ---------- store ---------- */
 const DEF = {
-  tasks:[
-    {id:1,t:"Find a PCP (primary care doctor) accepting new patients",cat:"Health",due:"2026-06-15",pri:"High",st:"todo",monday:true},
-    {id:2,t:"Call & book kids' checkup appointments for Mon Jun 15",cat:"Kids",due:"2026-06-12",pri:"High",st:"todo",monday:true},
-    {id:3,t:"Book my checkup for Mon Jun 15 (mention low blood pressure)",cat:"Health",due:"2026-06-12",pri:"High",st:"todo",monday:true},
-    {id:4,t:"Book kids' dentist appointments for Mon Jun 15",cat:"Kids",due:"2026-06-12",pri:"High",st:"todo",monday:true}
-  ],
-  goals:[
-    {id:1,t:"Grow SynKasa to consistent monthly clients",cat:"Business",p:20},
-    {id:2,t:"Stabilize my health (low BP follow-up plan)",cat:"Health",p:10}
-  ],
+  tasks:[{id:1,t:"Add your first task",cat:"Life",due:"",pri:"Normal",st:"todo"}],
+  goals:[{id:1,t:"Set your first goal",cat:"Personal",p:0}],
   ideas:[],
   events:[],
   ventures:{synkasa:{kpis:[{l:"Clients",v:"0"},{l:"Leads",v:"0"},{l:"Posts this wk",v:"0"}],items:[{t:"Reel content plan v3 — film & post",done:false}]},others:[]},
@@ -497,10 +489,10 @@ function cycleInfo(){
   return {day,len,phase,key,nextPeriod,ovu};
 }
 const PHASE_TIPS={
-  Menstrual:{energy:"Rest & reflect",work:"Light admin, journaling, reviewing — not launching. Batch-watch tutorials, plan quietly.",body:"Iron-rich food, warmth, gentle stretching. With low BP: extra fluids + electrolytes, rise slowly.",ideas:"Best for intuition — capture ideas, judge them later.",cal:"Keep the calendar light. Say no freely."},
+  Menstrual:{energy:"Rest & reflect",work:"Light admin, journaling, reviewing — not launching. Batch-watch tutorials, plan quietly.",body:"Iron-rich food, warmth, gentle stretching. With hydration: extra fluids + electrolytes, rise slowly.",ideas:"Best for intuition — capture ideas, judge them later.",cal:"Keep the calendar light. Say no freely."},
   Follicular:{energy:"Build & begin",work:"Your best week for starting things — new SynKasa outreach, filming content, learning, pitching.",body:"Energy rises; strength training and bigger goals land well now.",ideas:"Brainstorm boldly. Convene the Council on big ideas this week.",cal:"Schedule launches, first calls, and anything new here."},
   Ovulation:{energy:"Shine & connect",work:"Peak communication — sales calls, networking, recording talking-head Reels, important meetings.",body:"You feel strongest; just keep hydration up for blood pressure.",ideas:"Pitch and present ideas — your delivery is at its peak.",cal:"Stack the social/visible things in this 2–3 day window."},
-  Luteal:{energy:"Finish & protect",work:"Completion mode — edit, ship, close loops, do detail work. Avoid overcommitting.",body:"Magnesium, steady meals, earlier nights. Watch dizziness with low BP.",ideas:"Critique week — run existing ideas past the Council, refine.",cal:"Build buffer time. Front-load anything demanding."}
+  Luteal:{energy:"Finish & protect",work:"Completion mode — edit, ship, close loops, do detail work. Avoid overcommitting.",body:"Magnesium, steady meals, earlier nights. Watch dizziness with hydration.",ideas:"Critique week — run existing ideas past the Council, refine.",cal:"Build buffer time. Front-load anything demanding."}
 };
 
 /* ---------- hero ---------- */
@@ -548,15 +540,7 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
 });
 
 /* ---------- google calendar ---------- */
-const GCALS=[
-  {id:'nanafrimpgskc@gmail.com',name:'Personal'},
-  {id:'ba1d23d03f088e965b007deac270a80638f1054ce4573e3532055fb49c6a2f56@group.calendar.google.com',name:'Career & Biz'},
-  {id:'deb9c7d7f036864c2bb397d10df733594ae90af30ca3d7951dcb15de952da2ea@group.calendar.google.com',name:'Health'},
-  {id:'d86450b3e32cfca6a3864b4f17aa1cd661c258e32d4a9728c6ae1b5d20cbedfd@group.calendar.google.com',name:'Rituals'},
-  {id:'6ca5a9ff514f4779bbb20c3278def4d8a3bb510ee77a7d54c4276294500eed00@group.calendar.google.com',name:'Family'},
-  {id:'8b386431e54f3d8f3dd87dd79275a4e804e1d9599b765cff204102de1df73d41@group.calendar.google.com',name:'Finance'},
-  {id:'a782d9784cb175ba13dc26736b1a37d7a54ac7c59f27d3858d567b37813d0b3d@group.calendar.google.com',name:'Love'}
-];
+const GCALS=[];
 async function syncGcal(){
   $('gcalStatus').innerHTML='<span class="spin"></span> syncing your calendars...';
   const start=new Date();start.setHours(0,0,0,0);
@@ -750,7 +734,7 @@ async function getReco(){
   const c=cycleInfo(),m=moonInfo();
   const open=S.tasks.filter(t=>t.st!=='done').map(t=>t.t).slice(0,8).join('; ');
   const goals=S.goals.map(g=>`${g.t} (${g.p}%)`).join('; ');
-  const prompt=`Give exactly 5 short, specific recommendations (one line each, no emojis, start each with a bold 2-4 word label then a colon, like "Film one Reel: ...") to improve NaNa's day today. She is a mother and solo founder of SynKasa (AI front desk for small businesses), has low blood pressure, and practices spiritual rituals. Today: ${new Date().toDateString()}. Moon: ${m.name}. ${c?`Cycle: day ${c.day}, ${c.phase} phase.`:''} Open tasks: ${open||'none'}. Goals: ${goals||'none'}. Mix: 1 business, 1 health/body, 1 family, 1 spirit, 1 mindset. Plain text, 5 lines only.`;
+  const prompt=`Give exactly 5 short, specific recommendations (one line each, no emojis, start each with a bold 2-4 word label then a colon, like "Film one Reel: ...") to improve NaNa's day today. She is a mother and solo founder of SynKasa (AI front desk for small businesses), practices spiritual rituals. Today: ${new Date().toDateString()}. Moon: ${m.name}. ${c?`Cycle: day ${c.day}, ${c.phase} phase.`:''} Open tasks: ${open||'none'}. Goals: ${goals||'none'}. Mix: 1 business, 1 health/body, 1 family, 1 spirit, 1 mindset. Plain text, 5 lines only.`;
   try{
     let r=await window.cowork.askClaude(prompt,[]);
     let txt=typeof r==='string'?r:(r?.text??r?.content?.[0]?.text??JSON.stringify(r));
