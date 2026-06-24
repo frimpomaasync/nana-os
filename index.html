@@ -413,7 +413,7 @@ h4.sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(
 <!-- PEPTIDES -->
 <section class="tab" id="tab-peptides">
   <div class="banner" style="border-color:var(--line2)"><i data-ic="vial"></i><b>For organizing your own regimen.</b> This does the reconstitution math and tracks your doses — it’s educational, not medical advice. Follow your prescriber and sterile technique.</div>
-  <div class="card" style="margin-bottom:14px"><h2><span class="icbox"><i data-ic="cal"></i></span>Your weekly schedule</h2><div class="muted" style="margin-bottom:8px">Morning injections by day. Tap any peptide below to push its schedule to Google Calendar.</div><div id="pepWeek"></div></div>
+  <div class="card" style="margin-bottom:14px"><h2><span class="icbox"><i data-ic="cal"></i></span>Your weekly schedule</h2><div class="muted" style="margin-bottom:8px">Your injections by day (AM &amp; PM). Tap any peptide below to push its schedule to Google Calendar.</div><div id="pepWeek"></div></div>
   <div class="card" style="margin-bottom:14px">
     <h2><span class="icbox"><i data-ic="vial"></i></span>Add a peptide</h2>
     <div class="row" style="margin-bottom:8px"><input id="pName" placeholder="Name (e.g. BPC-157)"></div>
@@ -1145,9 +1145,59 @@ function migratePepTimes(){
   });
   S.pepTimeFixed=true; save();
 }
+/* ---------- peptide v3: injection sites + week-by-week + GHK-Cu evening ---------- */
+var PEP_DATA={
+ 'Retatrutide':{site:'SubQ — abdomen, thigh, or upper arm. Rotate each weekly shot ≥1 inch from the last spot.',
+   weekly:[['Weeks 1–2','1 mg','10 u'],['Weeks 3–6','4 mg','40 u'],['Weeks 7–10','8 mg','80 u'],['Weeks 11+','12 mg','120 u — split into 2 draws or use a 1 mL syringe']]},
+ 'MOTS-c':{site:'SubQ — abdominal fat, outer thigh, or upper arm. Rotate sites; 29–31 g insulin needle.',
+   weekly:[['Weeks 1–12 (one cycle)','5 mg','50 u'],['After the cycle','take a break','—']]},
+ 'GHK-Cu':{site:'SubQ — rotate abdomen quadrants, outer thighs & upper arms (L/R). Give each spot ≥7 days to recover.',
+   weekly:[['Weeks 1–2','1 mg','2 u'],['Weeks 3+','2 mg','3 u'],['Cycle','~30 days on, 14 off','—']]},
+ 'NAD+':{site:'SubQ — back of the upper arm or abdomen. Inject SLOWLY (it can sting/flush). Rotate sites.',
+   weekly:[['Weeks 1–2','50 mg','50 u'],['Weeks 3–4','75 mg','75 u'],['Weeks 5+','100 mg','100 u']]},
+ 'Glutathione':{site:'SubQ — abdomen or thigh (0.4–0.8 mL sits fine under the skin); or IM deltoid for a faster peak. Rotate.',
+   weekly:[['Weeks 1–2','200 mg','40 u'],['Weeks 3+','400 mg','80 u']]}
+};
+function migratePepV3(){
+  if(S.pepV3)return;
+  (S.peptides||[]).forEach(function(p){
+    var d=PEP_DATA[p.name]; if(d){ p.site=d.site; p.weekly=d.weekly; }
+    if(p.name==='GHK-Cu'){ p.days=['Mon','Tue','Wed','Thu','Fri']; p.time='21:00';
+      p.benefits='Copper repair peptide. Stimulates collagen & elastin, drives wound healing and skin/hair repair, antioxidant + anti-inflammatory — the body’s own “repair” signal that declines with age. Best in the EVENING (overnight repair phase) and kept separate from your morning antioxidants; a common pattern is 1 mg ~5 evenings/week, cycled ~30 days on / 14 off.'; }
+  });
+  S.pepV3=true; save();
+}
+function pepGCal(id){
+  var p=S.peptides.find(function(x){return x.id===id;}); if(!p)return;
+  var dmap={Sun:'SU',Mon:'MO',Tue:'TU',Wed:'WE',Thu:'TH',Fri:'FR',Sat:'SA'},rrule;
+  if(p.days&&p.days.length){ rrule='RRULE:FREQ=WEEKLY;BYDAY='+p.days.map(function(d){return dmap[d];}).join(',')+';COUNT=52'; }
+  else { var fr=PEP_FREQ[p.freq]||PEP_FREQ.daily; rrule=fr.rrule; }
+  var doseTxt=p.dose1?(p.dose1+(p.units1?(' ('+p.units1+')'):'')):(p.dose+p.unit);
+  var title='💉 '+p.name+' '+doseTxt;
+  var details=p.name+' — '+doseTxt+'.'+(p.site?(' Site: '+p.site):'')+(p.benefits?(' '+p.benefits):'')+' (From NaNa OS — not medical advice.)';
+  openGCal(title,_nextDay(p.days),p.time||'09:00',details,rrule);
+}
+function renderPeptides(){
+  var box=$('peptideList'); if(!box)return;
+  if(!S.peptides||!S.peptides.length){box.innerHTML='<div class="card muted">No peptides yet. Add one below — I’ll work out the exact units to draw and let you add the schedule to Google Calendar.</div>';return;}
+  var d=todayStr();
+  box.innerHTML=S.peptides.map(function(p){
+    var u=(typeof pepUnits==='function')?pepUnits(p):null, streak=Object.keys(p.hist||{}).length;
+    var dot=p.color?('<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:'+p.color+';margin-right:8px;vertical-align:middle"></span>'):'';
+    var sched=(p.days&&p.days.length)?(p.days.join(' · ')+' at '+fmtTime(p.time)):(((PEP_FREQ[p.freq]||{}).label||'set your own day')+(p.time?(' · '+fmtTime(p.time)):''));
+    var site=p.site?('<div class="m" style="margin-top:9px"><b>Injection site:</b> '+esc(p.site)+'</div>'):'';
+    var recon=p.dose1?('<div class="m" style="margin-top:8px"><b>Reconstitute:</b> '+esc(p.vial)+' mg vial + '+esc(p.water)+' mL BAC water → '+esc(p.conc)+'</div>'):(u?('<div class="reco" style="margin-top:10px"><b>Draw '+_uTxt(u)+' units</b> on a U-100 syringe.</div>'):'');
+    var weekly=(p.weekly&&p.weekly.length)?('<h4 class="sub">Week-by-week</h4>'+p.weekly.map(function(r){return '<div class="item"><div class="grow"><div class="t"><b>'+esc(r[0])+'</b> — '+esc(r[1])+'</div>'+((r[2]&&r[2]!=='—')?('<div class="m">draw '+esc(r[2])+'</div>'):'')+'</div></div>';}).join('')):'';
+    return '<div class="card" style="margin-bottom:12px"><div class="row"><div style="flex:1"><h3 style="font-size:16px;font-weight:800">'+dot+esc(p.name)+'</h3><div class="muted">'+esc(sched)+'</div></div><button class="x fix" onclick="delPeptide('+p.id+')">✕</button></div>'
+      +(p.benefits?('<div class="muted" style="margin-top:9px;line-height:1.55">'+esc(p.benefits)+'</div>'):'')
+      +site+recon+weekly
+      +'<label class="item" style="margin-top:10px;cursor:pointer"><input type="checkbox" class="check" '+((p.hist&&p.hist[d])?'checked':'')+' onchange="togPep('+p.id+')"><div class="grow"><div class="t">Took today’s dose</div><div class="m"><span class="streak"><i data-ic="flame" data-s="12"></i>'+streak+' logged</span></div></div></label>'
+      +'<div class="row" style="margin-top:8px"><button class="btn fix" onclick="pepGCal('+p.id+')"><i data-ic="cal"></i>Add schedule to Google Calendar</button></div></div>';
+  }).join('');
+}
 /* ---------- init ---------- */
 $('recoBtn').onclick=getReco;
-function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{seedPeptides();migratePepTimes();renderPeptides();renderPepWeek();}catch(e){}
+function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{seedPeptides();migratePepTimes();migratePepV3();renderPeptides();renderPepWeek();}catch(e){}
   const key=todayStr(); if(S.recoCache[key])$('recoBox').innerHTML=S.recoCache[key];}
 renderAll();
 hydrate();
