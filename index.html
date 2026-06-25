@@ -346,6 +346,7 @@ h4.sub{font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:var(
 
 <!-- SPIRIT -->
 <section class="tab" id="tab-spirit">
+  <div id="ritualsBox"></div>
   <div class="grid g2">
     <div class="card">
       <h2><span class="icbox"><i data-ic="candle"></i></span>Daily Practices</h2>
@@ -830,6 +831,51 @@ async function getReco(){
   }catch(e){$('recoBox').innerHTML='<div class="muted">Could not generate: '+esc(e.message||e)+'</div>';}
 }
 /* ---------- spirit ---------- */
+var RT_SPELLS=[{"id":"green","name":"Green Candle Prosperity Ritual","kind":"Money","days":7,"when":"7 days · 30 min each · starts on a waxing-moon Thursday (Thu Jun 25)","materials":["Green candle","Carving pin","Cinnamon or patchouli oil","Basil leaves or gold glitter"],"steps":["Day 1: carve $ (or your currency sign) and your name into the green candle.","Anoint with cinnamon or patchouli oil; roll in basil leaves or gold glitter.","Light it, say the chant, and burn 30 minutes while visualizing wealth arriving.","Snuff it (don't blow it out) and relight each day for 7 days."],"chant":"Green flame of wealth, come to me. Money flows abundantly, easily.","gcal":{"text":"Green Candle Prosperity Ritual","start":"20260625T190000","end":"20260625T193000","recur":"RRULE:FREQ=DAILY;COUNT=7"}},{"id":"bay","name":"Bay Leaf Burning Spell","kind":"Money","days":7,"when":"7 days · at dawn (starts Fri Jun 26)","materials":["Dry bay leaves","Pen","Fireproof dish","Lighter"],"steps":["Write the exact amount needed and 'thank you' on a dry bay leaf.","Burn it in a fireproof dish while visualizing the money arriving (windfall, job offer).","Chant the words below 3 times.","Repeat for 7 mornings, preferably at dawn."],"chant":"By leaf of bay, money come my way. Universe provide, in perfect time today.","gcal":{"text":"Bay Leaf Money Burning","start":"20260626T060000","end":"20260626T061500","recur":"RRULE:FREQ=DAILY;COUNT=7"}},{"id":"honey","name":"Honey Jar Sweetening Spell","kind":"Love","days":21,"when":"shake daily for 21 days + pink candle every Friday (starts Fri Jun 26)","materials":["Parchment paper","Red ink pen","Clean jar with lid","Honey","Rose petals","Cinnamon","Lock of hair or personal item","Pink candles (for Fridays)"],"steps":["Day 1: write both names on parchment in red ink; place in a clean jar with honey, rose petals, cinnamon and a lock of your hair.","Seal the jar and keep it in a warm, dark place.","Each day: shake the jar while chanting the words below.","Every Friday: burn a pink candle on top of the jar."],"chant":"As this honey sweetens, so does [Name]'s heart toward me. Love flows freely and purely.","gcal":{"text":"Honey Jar - shake & chant","start":"20260626T080000","end":"20260626T081000","recur":"RRULE:FREQ=DAILY;COUNT=21"}},{"id":"jupiter","name":"Jupiter Wealth Altar Spell","kind":"Money","days":7,"when":"every Thursday · maintain altar 40+ days (starts Thu Jun 25)","materials":["Green cloth","Jupiter symbol ×4","Citrine crystals","Bowl","Rice","Sun & moon worry coin","9 ordinary coins","Yellow or green candles","Frankincense incense","Paper for petition"],"steps":["Set up the altar and keep it undisturbed: green cloth, Jupiter symbol ×4, citrine, and a bowl of rice mixed with your sun & moon worry coin + 9 ordinary coins.","Each Thursday: light a yellow or green candle and offer the chant below.","Burn frankincense and place a written petition for ongoing abundance under the bowl.","Maintain the altar for at least 40 days (about 6-7 Thursdays)."],"chant":"Jupiter, expander of fortune, bless me with riches beyond measure.","gcal":{"text":"Jupiter Wealth Altar - Thursday","start":"20260625T090000","end":"20260625T092000","recur":"RRULE:FREQ=WEEKLY;BYDAY=TH;COUNT=7"}}];
+var RT_REMEDIES=[{"group":"Every morning","when":"~6:15 AM","items":["Surya Namaskar (Sun salutation) at sunrise","Dab pure sandalwood oil (in a sandalwood-carved container)","Take honey — a spoonful, or touch a drop to your lips","Drink saffron milk","Set aside grains to feed a cow or birds before leaving home","A few minutes of mindfulness or yoga"]},{"group":"Every night","when":"bedtime","items":["Keep a consistent sleep routine (balances Ketu)"]},{"group":"Mondays","when":"~7:30 AM","items":["Drink water from a silver glass","Recite 'Om Som Somaye Namah' (clears financial obstacles)"]},{"group":"Wednesdays","when":"~7:30 AM","items":["Recite the universal prayers (reduces career obstacles)"]},{"group":"Thursdays","when":"midday","items":["Offer almonds at a temple or place of worship"]},{"group":"Fridays","when":"~7:00 AM","items":["Rose-water or rose-oil bath with the sun & moon worry coin (career)","Keep a Friday fast (the year's positivity)","Wear white or baby pink on important meeting days"]},{"group":"Saturdays","when":"morning","items":["Feed black dog(s)","Feed bananas to monkeys (clears emotional/romantic blockages)"]},{"group":"Sundays","when":"evening","items":["Creative activity with your partner — painting, writing, or crafting"]},{"group":"Monthly","when":"1st Friday","items":["Gift roses to your partner (smooths relationship obstacles)"]},{"group":"One-time home setup","when":"do once, then keep in place","items":["Saturn yantra beside your family picture","Lavender plant or orchids in the bedroom","Crystal tortoise in the NE corner of your home","Silver piece + sun & moon worry coin in wallet or desk","Sandalwood fragrance + green/flowering Vastu plants at home"]},{"group":"Ongoing all year","when":"daily mindset","items":["Avoid Tamasic / unhealthy foods; limit meat & alcohol","Keep your character pure and clean","Don't be selfish in relationships — foster harmony"]}];
+var RT_MATERIALS={"need":["Magnets","Lotus (flower)"],"have":["Green candle","Cinnamon / patchouli oil","Basil leaves","Gold glitter","Parchment paper","Red ink pen","Glass jar","Honey","Rose petals","Cinnamon","Pink candles","Dry bay leaves","Fireproof dish","Green cloth","Jupiter symbol ×4","Citrine crystals","Rice","Sun & moon worry coin","9 ordinary coins","Yellow / green candles","Frankincense incense","Sandalwood oil + carved container","Rose water / rose oil","Silver piece","Silver glass","Saturn yantra","Lavender plant / orchids","Saffron","Crystal tortoise","Vastu plants","White / baby pink clothing","Almonds","Bananas"]};
+var RT_OPEN={};
+function ritualsInit(){ S.rituals=S.rituals||{}; S.rituals.day=S.rituals.day||{}; S.rituals.mat=S.rituals.mat||{}; S.rituals.rem=S.rituals.rem||{}; }
+function renderRituals(){
+  var box=$('ritualsBox'); if(!box) return; ritualsInit(); var R=S.rituals;
+  var spellsDone=RT_SPELLS.filter(function(s){return (R.day[s.id]||0)>=s.days;}).length;
+  var remTotal=0,remDone=0; RT_REMEDIES.forEach(function(g,gi){g.items.forEach(function(it,ii){remTotal++; if(R.rem[gi+'-'+ii])remDone++;});});
+  var h='<div class="card"><h2><span class="icbox"><i data-ic="moon"></i></span>Rituals &amp; Remedies</h2>';
+  h+='<div class="muted" style="margin-bottom:8px">Your 2026 spell &amp; remedy plan &mdash; follow each step to the T. Every item here is also on your <b>Remedies &amp; Rituals</b> Google Calendar.</div>';
+  h+='<div><b style="font-family:var(--head);color:var(--ink)">Spells '+spellsDone+'/'+RT_SPELLS.length+' complete &middot; Remedies checked '+remDone+'/'+remTotal+'</b><div class="bar" style="margin-top:7px"><i style="width:'+Math.round(spellsDone/RT_SPELLS.length*100)+'%"></i></div></div>';
+  h+='<a class="btn ghost small" style="margin-top:10px;text-decoration:none" href="https://calendar.google.com/calendar/" target="_blank" rel="noopener"><i data-ic="cal"></i>Open Google Calendar</a></div>';
+  h+='<div class="card"><h2><span class="icbox"><i data-ic="check"></i></span>Materials</h2><h4 class="sub" style="color:#a94436">Still to get</h4>';
+  RT_MATERIALS.need.forEach(function(m){var c=R.mat[m];h+='<label class="item" style="cursor:pointer"><input type="checkbox" class="check" '+(c?'checked':'')+' onchange="togMat(\''+m.replace(/'/g,"\\'")+'\')"><div class="grow"><div class="t" '+(c?'style="text-decoration:line-through;opacity:.6"':'')+'>'+m+'</div></div></label>';});
+  h+='<h4 class="sub">You already have</h4><div class="muted" style="line-height:1.9">'+RT_MATERIALS.have.map(function(m){return (R.mat[m]?'☑ ':'☐ ')+m;}).join(' &middot; ')+'</div><div class="sectionnote">Tap an item to track it.</div></div>';
+  h+='<h4 class="sub" style="font-size:12px;margin-left:4px">The Spells</h4>';
+  RT_SPELLS.forEach(function(s){
+   var open=RT_OPEN[s.id]; var d=R.day[s.id]||0; var done=d>=s.days; var kc=s.kind==='Love'?'#9E5A4A':'#2e7d5b';
+   h+='<div class="card" style="margin-bottom:12px"><div style="display:flex;align-items:flex-start;gap:10px;cursor:pointer" onclick="togROpen(\''+s.id+'\')"><div class="grow"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="pill" style="background:'+(s.kind==='Love'?'rgba(158,90,74,.13)':'rgba(46,125,91,.13)')+';color:'+kc+'">'+s.kind+'</span>'+(done?'<span class="pill" style="background:rgba(201,151,91,.16);color:#9a5f26">Complete</span>':'')+'</div><div style="font-family:var(--head);font-weight:800;font-size:15px;margin-top:6px;color:var(--ink)">'+s.name+'</div><div class="m">'+s.when+'</div></div><div style="font-size:17px;color:var(--copper);font-weight:700">'+(open?'&#9662;':'&#9656;')+'</div></div>';
+   if(open){
+    h+='<div style="margin-top:12px;line-height:1.6"><h4 class="sub">Materials</h4><div class="muted">'+s.materials.join(' &middot; ')+'</div><h4 class="sub">Steps</h4><ol style="margin:0 0 6px 20px;padding:0">';
+    s.steps.forEach(function(st){h+='<li style="margin-bottom:5px">'+st+'</li>';});
+    h+='</ol><div class="reco"><b><i data-ic="spark"></i> Chant:</b> “'+s.chant+'”</div>';
+    h+='<h4 class="sub">Progress &mdash; day '+d+' of '+s.days+'</h4><div style="display:flex;flex-wrap:wrap;gap:6px">';
+    for(var k=1;k<=s.days;k++){h+='<span onclick="spellSet(\''+s.id+'\','+k+')" style="cursor:pointer;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;border:1px solid var(--line);background:'+(k<=d?'var(--copper)':'rgba(255,255,255,.6)')+';color:'+(k<=d?'#fff':'var(--soft)')+'">'+k+'</span>';}
+    h+='</div>';
+    var url='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(s.gcal.text)+'&dates='+s.gcal.start+'/'+s.gcal.end+'&recur='+encodeURIComponent(s.gcal.recur)+'&details='+encodeURIComponent('Chant: '+s.chant);
+    h+='<a class="btn ghost small" style="margin-top:10px;text-decoration:none" href="'+url+'" target="_blank" rel="noopener"><i data-ic="cal"></i>Add to Google Calendar</a></div>';
+   }
+   h+='</div>';
+  });
+  h+='<h4 class="sub" style="font-size:12px;margin-left:4px">2026 Remedies</h4>';
+  RT_REMEDIES.forEach(function(g,gi){
+   h+='<div class="card" style="margin-bottom:12px"><h2 style="font-size:14px"><span class="icbox"><i data-ic="flower"></i></span>'+g.group+' <span class="muted" style="font-weight:500">&middot; '+g.when+'</span></h2>';
+   g.items.forEach(function(it,ii){var key=gi+'-'+ii;var c=R.rem[key];h+='<label class="item" style="cursor:pointer;align-items:flex-start"><input type="checkbox" class="check" '+(c?'checked':'')+' onchange="togRem(\''+key+'\')"><div class="grow"><div class="t" '+(c?'style="text-decoration:line-through;opacity:.6"':'')+'>'+it+'</div></div></label>';});
+   h+='</div>';
+  });
+  h+='<div class="sectionnote" style="margin:0 4px">Your personal practice tracker. Times are reminders &mdash; adjust any to suit your day.</div>';
+  box.innerHTML=h;
+ }
+function togMat(name){ ritualsInit(); S.rituals.mat[name]=!S.rituals.mat[name]; save(); renderRituals(); }
+function togRem(key){ ritualsInit(); S.rituals.rem[key]=!S.rituals.rem[key]; save(); renderRituals(); }
+function spellSet(id,k){ ritualsInit(); S.rituals.day[id]=(S.rituals.day[id]===k?k-1:k); save(); renderRituals(); }
+function togROpen(id){ RT_OPEN[id]=!RT_OPEN[id]; renderRituals(); }
 function renderSpirit(){
   const d=todayStr();
   $('spiritDateLabel').textContent='Check off today — '+new Date().toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
@@ -1378,6 +1424,7 @@ function renderTrust(){ if(!$('tab-trust'))return; trustInit(); renderTOverview(
 $('recoBtn').onclick=getReco;
 function renderAll(){renderTasks();renderGoals();renderFounder();renderCycle();renderIdeas();renderSpirit();renderKids();renderCalendar();renderHero();try{seedPeptides();migratePepTimes();migratePepV3();renderPeptides();renderPepWeek();}catch(e){}
 try{renderTrust();}catch(e){}
+try{renderRituals();}catch(e){}
   const key=todayStr(); if(S.recoCache[key])$('recoBox').innerHTML=S.recoCache[key];}
 renderAll();
 hydrate();
