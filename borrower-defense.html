@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Loan Discharge · Nana OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Lustria&display=swap" rel="stylesheet">
+<style>
+:root{
+  --text:#3d3327; --head:#15202e; --muted:#8a7b6b;
+  --green:#2e7d5b; --red:#a94436; --gold:#b87333; --blue:#1f3a5f; --purple:#5a4632;
+  --glass:rgba(255,255,255,.66); --glass2:rgba(255,255,255,.5); --gborder:rgba(60,45,25,.1);
+  --hairline:rgba(255,255,255,.85);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Lustria',Georgia,serif;color:var(--text);padding:14px 14px 60px;min-height:100vh;
+  background:radial-gradient(900px 500px at 85% -5%,rgba(46,125,91,.07),transparent 60%),radial-gradient(800px 520px at -10% 20%,rgba(31,58,95,.06),transparent 60%),#fbfaf7;}
+h1,h2,h3,h4,.statv,button,.tag,.tabs button{font-family:'Archivo',-apple-system,sans-serif;color:var(--head);letter-spacing:-.01em}
+.wrap{max-width:880px;margin:0 auto}
+.masthead{padding:8px 4px 4px}
+.eyebrow{font-family:'Archivo',sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.32em;color:var(--green);text-transform:uppercase}
+.masthead h1{font-size:2rem;font-weight:900;letter-spacing:-.03em;margin-top:6px;line-height:1}
+.masthead p{color:var(--muted);font-size:.92rem;margin-top:8px;max-width:660px;line-height:1.5}
+.disclaim{font-size:.74rem;color:var(--muted);background:var(--glass2);border:1px solid var(--gborder);border-left:3px solid var(--green);border-radius:6px 12px 12px 6px;padding:9px 12px;margin-top:12px;line-height:1.5}
+nav.tabs{display:flex;gap:5px;flex-wrap:wrap;margin:16px 0 14px;position:sticky;top:6px;z-index:40;background:rgba(251,250,247,.82);backdrop-filter:blur(12px);padding:6px;border-radius:16px;border:1px solid var(--hairline)}
+nav.tabs button{flex:1 1 auto;background:none;border:none;color:var(--muted);padding:8px 12px;border-radius:11px;cursor:pointer;font-size:.74rem;font-weight:700;letter-spacing:.02em;white-space:nowrap;transition:.18s}
+nav.tabs button.active{color:#fff;background:var(--green);box-shadow:0 5px 14px rgba(46,125,91,.3)}
+nav.tabs button:hover:not(.active){color:var(--head)}
+section.page{display:none;animation:fade .3s ease}section.page.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.card{background:var(--glass);border:1px solid var(--hairline);border-radius:20px;padding:18px;margin-bottom:14px;backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(50,40,20,.07)}
+.card h2{font-size:1.05rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.card h2 .n{width:26px;height:26px;border-radius:8px;background:var(--green);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;flex:0 0 auto}
+.card h3{font-size:.95rem;font-weight:800;margin:14px 0 6px}
+.muted{color:var(--muted);font-size:.86rem;line-height:1.55}
+p.lead{font-size:.92rem;line-height:1.6;margin:6px 0}
+ul.clean{list-style:none;margin:8px 0}
+ul.clean li{padding:7px 0 7px 26px;position:relative;font-size:.88rem;line-height:1.5;border-bottom:1px solid var(--gborder)}
+ul.clean li:last-child{border-bottom:none}
+ul.clean li::before{content:"";position:absolute;left:4px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--green)}
+ul.clean li.bad::before{background:var(--red)}ul.clean li.gold::before{background:var(--gold)}
+.step{display:flex;gap:13px;padding:11px 0;border-bottom:1px solid var(--gborder)}
+.step:last-child{border-bottom:none}
+.step .sn{flex:0 0 30px;height:30px;border-radius:50%;background:var(--head);color:#fff;font-family:'Archivo';font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.step .sb{flex:1}
+.step .sb b{font-family:'Archivo';font-weight:800;color:var(--head);font-size:.92rem}
+.step .sb p{font-size:.85rem;color:var(--muted);margin-top:3px;line-height:1.5}
+label{display:block;font-size:.7rem;font-weight:700;font-family:'Archivo';text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:9px 0 4px}
+input,select,textarea{width:100%;font-family:'Lustria',serif;font-size:.9rem;border:1px solid var(--gborder);border-radius:11px;padding:9px 11px;background:rgba(255,255,255,.8);color:var(--head);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,125,91,.13)}
+textarea{resize:vertical;line-height:1.5}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--green);color:#fff;border:none;border-radius:99px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:.82rem;font-family:'Archivo';transition:.15s;box-shadow:0 5px 14px rgba(46,125,91,.25)}
+.btn:hover{transform:translateY(-1px)}
+.btn.blue{background:var(--blue)}.btn.gold{background:var(--gold)}
+.btn.ghost{background:rgba(255,255,255,.7);color:var(--head);border:1px solid var(--gborder);box-shadow:none}
+.btn.sm{padding:6px 13px;font-size:.74rem}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--gborder)}
+.check:last-child{border-bottom:none}
+.check input{width:18px;height:18px;flex:0 0 18px;margin-top:2px;accent-color:var(--green)}
+.check .ct{font-size:.88rem;line-height:1.5}.check .ct b{font-family:'Archivo';color:var(--head)}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.66rem;font-weight:700;font-family:'Archivo';letter-spacing:.03em}
+.t-red{background:rgba(169,68,54,.1);color:var(--red)}.t-gold{background:rgba(184,115,51,.13);color:#9a5f26}
+.t-green{background:rgba(46,125,91,.1);color:var(--green)}.t-blue{background:rgba(31,58,95,.09);color:var(--blue)}
+.box{background:#fffdf9;border:1px solid var(--gborder);border-radius:12px;padding:16px;margin-top:10px;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.55;white-space:pre-wrap;color:#2b2620;max-height:420px;overflow:auto}
+.warn{background:rgba(184,115,51,.08);border:1px solid rgba(184,115,51,.3);border-radius:12px;padding:12px 14px;font-size:.82rem;line-height:1.55;color:#7a4a18;margin:10px 0}
+.warn b{color:#9a5f26;font-family:'Archivo'}
+.good{background:rgba(46,125,91,.07);border:1px solid rgba(46,125,91,.22);border-radius:12px;padding:12px 14px;font-size:.82rem;line-height:1.55;margin:10px 0}
+.statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+.stat{background:var(--glass2);border:1px solid var(--gborder);border-radius:14px;padding:13px}
+.stat .statv{font-weight:900;font-size:1.3rem;letter-spacing:-.02em;color:var(--green)}
+.stat .statl{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-top:4px;font-weight:700;font-family:'Archivo'}
+.law{padding:11px 0;border-bottom:1px solid var(--gborder)}.law:last-child{border:none}
+.law .lc{font-family:'Archivo';font-weight:800;color:var(--green);font-size:.9rem}
+.law .ld{font-size:.84rem;color:var(--text);margin-top:3px;line-height:1.5}
+a{color:var(--blue);font-weight:700}
+.foot{text-align:center;color:var(--muted);font-size:.74rem;margin-top:18px;line-height:1.5}
+@media(max-width:560px){.masthead h1{font-size:1.6rem}nav.tabs{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="eyebrow">Nana OS · Student Loan Relief</div>
+    <h1>Student Loan Discharge</h1>
+    <p>Borrower Defense to Repayment — the federal program that can <b>cancel your federal student loans</b> and refund what you paid if your school lied to you or broke the law to get you to enroll. Here's whether you qualify, how to prove it, and exactly how to apply.</p>
+    <div class="disclaim"><b>Educational, not legal advice.</b> Borrower Defense is for borrowers whose <b>school</b> committed misconduct or misrepresentation — not a general "I can't afford my loans" program. Applying is always free, directly at StudentAid.gov.</div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button class="active" data-p="overview">Overview</button>
+    <button data-p="eligibility">Do I Qualify?</button>
+    <button data-p="evidence">Evidence</button>
+    <button data-p="apply">Apply</button>
+    <button data-p="builder">Statement Builder</button>
+    <button data-p="status">Status &amp; Law</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section class="page show" id="page-overview">
+    <div class="card">
+      <h2><span class="n">★</span>What Borrower Defense can do</h2>
+      <p class="lead">If your school misled you — about job placement rates, accreditation, transferable credits, costs, or what the program would deliver — federal law lets you ask the U.S. Department of Education to <b>discharge the federal loans</b> you took out for that school, and potentially <b>refund payments</b> you already made.</p>
+      <div class="statrow">
+        <div class="stat"><div class="statv">$0</div><div class="statl">Cost to apply</div></div>
+        <div class="stat"><div class="statv">Direct</div><div class="statl">Loan type required</div></div>
+        <div class="stat"><div class="statv">No deadline</div><div class="statl">To submit a claim</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2><span class="n">i</span>The honest picture in 2026</h2>
+      <div class="warn"><b>Read this before you pin hopes on a timeline.</b> The application is open and free, but the program has been through heavy litigation and staffing cuts. Decisions are slow, and the Department can take up to three years to rule on a complete claim. File anyway — your claim is dated when you submit, and a strong, well-documented application is what matters.</div>
+      <ul class="clean">
+        <li><b>Applications are open</b> at StudentAid.gov/borrower-defense and remain free.</li>
+        <li><b>Older claims</b> (filed 2017–2022) are governed by the <i>Sweet v. McMahon</i> class settlement, which set deadlines for the Department to decide many claims.</li>
+        <li><b>The Department resumed</b> sending claim notices to schools in 2026 for newer claims.</li>
+        <li>Because rules keep shifting, always confirm current status on StudentAid.gov when you apply.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="n">→</span>Your path</h2>
+      <div class="step"><div class="sn">1</div><div class="sb"><b>Check eligibility</b><p>Confirm your loan type and that your school's conduct fits the legal standard.</p></div></div>
+      <div class="step"><div class="sn">2</div><div class="sb"><b>Gather evidence</b><p>Pull together what your school told you and what actually happened.</p></div></div>
+      <div class="step"><div class="sn">3</div><div class="sb"><b>Write your statement &amp; apply</b><p>Use the builder here to draft your narrative, then submit at StudentAid.gov.</p></div></div>
+      <div class="step"><div class="sn">4</div><div class="sb"><b>Request forbearance &amp; track it</b><p>Ask to pause payments while your claim is pending, and keep every record.</p></div></div>
+      <button class="btn" style="margin-top:14px" onclick="go('eligibility')">Check if I qualify →</button>
+    </div>
+  </section>
+
+  <!-- ELIGIBILITY -->
+  <section class="page" id="page-eligibility">
+    <div class="card">
+      <h2><span class="n">1</span>First: what loans do you have?</h2>
+      <p class="muted">Borrower Defense only discharges <b>federal Direct Loans</b> (including Direct PLUS and Direct Consolidation Loans).</p>
+      <ul class="clean">
+        <li class="bad"><b>FFEL or Perkins loans?</b> They don't qualify on their own — but you can <b>consolidate them into a Direct Consolidation Loan</b> first to become eligible. (Note: consolidating can affect other benefits and resets some clocks — weigh it carefully.)</li>
+        <li><b>Private loans?</b> Borrower Defense does not cover them. Look instead at claims against the lender or school under state law.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="n">2</span>The legal standard — check each box</h2>
+      <p class="muted">A strong claim generally shows all four. Tick the ones that match your experience.</p>
+      <div id="elig"></div>
+      <div id="eligScore" class="good" style="display:none;margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h2><span class="n">✓</span>Common qualifying misconduct</h2>
+      <ul class="clean">
+        <li>Inflated or fake <b>job-placement or salary rates</b> ("94% of grads hired").</li>
+        <li>Lying about <b>accreditation</b> or that credits would <b>transfer</b>.</li>
+        <li>Misrepresenting <b>cost, financial aid, or loan terms</b>.</li>
+        <li>Promising <b>certification or licensure</b> the program couldn't actually provide.</li>
+        <li>High-pressure or deceptive <b>recruiting tactics</b>; falsified your application or aid forms.</li>
+        <li>The school <b>closed</b> while you were enrolled or right after (may also qualify for a <b>Closed School Discharge</b>).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section class="page" id="page-evidence">
+    <div class="card">
+      <h2><span class="n">▤</span>Build your evidence file</h2>
+      <p class="muted">You don't need a lawyer's case — just credible proof of the gap between what you were promised and what you got. Check off what you can gather. Saved on this device.</p>
+      <div id="evid"></div>
+      <div class="row" style="margin-top:10px"><div><input id="ev_custom" placeholder="Add your own piece of evidence..."></div><div style="flex:0 0 120px;display:flex;align-items:flex-end"><button class="btn ghost sm" onclick="addEvid()">＋ Add</button></div></div>
+    </div>
+    <div class="card">
+      <h2><span class="n">⌕</span>Where to find it</h2>
+      <ul class="clean">
+        <li><b>Your own records:</b> enrollment agreement, catalog, emails/texts with recruiters, brochures, screenshots of the school's website (try the Wayback Machine for old pages).</li>
+        <li><b>Public findings:</b> lawsuits or settlements by the FTC, CFPB, or your state attorney general against the school — these strengthen claims a lot.</li>
+        <li><b>Your loan details:</b> log in to StudentAid.gov to list every Direct Loan tied to that school and the amounts.</li>
+        <li><b>Your story:</b> a clear, dated, first-person account of what you were told and how you relied on it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- APPLY -->
+  <section class="page" id="page-apply">
+    <div class="card">
+      <h2><span class="n">1</span>Apply online — the recommended way</h2>
+      <div class="good"><b>Go to <a href="https://studentaid.gov/borrower-defense" target="_blank" rel="noopener">StudentAid.gov/borrower-defense</a></b> and sign in with your FSA ID. The online form walks you through each section and lets you upload your evidence.</div>
+      <div class="step"><div class="sn">1</div><div class="sb"><b>Sign in with your FSA ID</b><p>Same login you use for federal aid. Create one if needed.</p></div></div>
+      <div class="step"><div class="sn">2</div><div class="sb"><b>Identify the school &amp; dates</b><p>School name, campus, your program/major, enrollment dates, and the credential you were pursuing.</p></div></div>
+      <div class="step"><div class="sn">3</div><div class="sb"><b>Describe the misconduct</b><p>This is the heart of it. Paste the statement you build in the next tab. Be specific: what was said, by whom, when, and how it turned out to be false.</p></div></div>
+      <div class="step"><div class="sn">4</div><div class="sb"><b>Upload evidence &amp; choose forbearance</b><p>Attach your documents. Decide whether to place your loans in forbearance (pause payments) or stopped collections while the claim is reviewed.</p></div></div>
+      <div class="step"><div class="sn">5</div><div class="sb"><b>Submit &amp; save your confirmation</b><p>Download the confirmation and note the date — that's your claim date. Keep copies of everything.</p></div></div>
+    </div>
+    <div class="card">
+      <h2><span class="n">✉</span>Prefer paper?</h2>
+      <p class="muted">Download the PDF application from StudentAid.gov and mail it to: U.S. Department of Education, Borrower Defense to Repayment, P.O. Box 1854, Monticello, KY 42633. Keep a full copy.</p>
+    </div>
+    <div class="card">
+      <h2><span class="n">⏸</span>While you wait</h2>
+      <ul class="clean">
+        <li><b>Forbearance / stopped collections:</b> you can request that payments pause and collections stop while your claim is pending. Interest may still accrue in forbearance — ask your servicer how it's handled.</li>
+        <li><b>Keep applying pressure where appropriate:</b> if your school faced government action, reference it.</li>
+        <li><b>Don't ignore your loans otherwise</b> — a pending claim isn't the same as a discharge until you get a decision.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- BUILDER -->
+  <section class="page" id="page-builder">
+    <div class="card">
+      <h2><span class="n">✍</span>Statement builder</h2>
+      <p class="muted">Answer these and generate a clear, first-person narrative you can paste into the application. Saved on this device.</p>
+      <div class="row"><div><label>School name</label><input id="b_school" placeholder="e.g. ABC Career Institute"></div><div style="flex:0 0 160px"><label>Campus / location</label><input id="b_loc" placeholder="City, State"></div></div>
+      <div class="row"><div><label>Program / major</label><input id="b_prog" placeholder="e.g. Medical Assisting"></div><div style="flex:0 0 200px"><label>Enrollment dates</label><input id="b_dates" placeholder="e.g. 2016–2018"></div></div>
+      <label>What did the school tell you that convinced you to enroll? (the promise)</label>
+      <textarea id="b_promise" rows="2" placeholder="e.g. A recruiter told me 90% of graduates were hired in their field within 6 months and that my credits would transfer to a state university."></textarea>
+      <label>How did you rely on that? (what you did because of it)</label>
+      <textarea id="b_rely" rows="2" placeholder="e.g. I chose this school over a community college and took out federal loans based on those promises."></textarea>
+      <label>What actually happened? (the truth)</label>
+      <textarea id="b_truth" rows="2" placeholder="e.g. No employer recognized the certificate, the credits did not transfer, and the placement rate was fabricated."></textarea>
+      <label>How were you harmed?</label>
+      <textarea id="b_harm" rows="2" placeholder="e.g. I owe $24,000 for a credential that's worthless to employers and set my career back two years."></textarea>
+      <button class="btn" style="margin-top:12px" onclick="genStatement()">Generate my statement</button>
+      <button class="btn ghost" style="margin-top:12px" onclick="copyStatement()">Copy</button>
+      <div id="stmtOut" class="box" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- STATUS & LAW -->
+  <section class="page" id="page-status">
+    <div class="card">
+      <h2><span class="n">▦</span>Track your claim</h2>
+      <div class="row"><div><label>Date submitted</label><input id="s_date" placeholder="MM/DD/YYYY"></div><div><label>Confirmation #</label><input id="s_conf" placeholder="from StudentAid.gov"></div></div>
+      <div class="row"><div><label>Status</label><select id="s_status"><option>Preparing</option><option>Submitted — awaiting review</option><option>In forbearance / collections stopped</option><option>Additional info requested</option><option>Decision: approved</option><option>Decision: denied — consider appeal</option></select></div><div style="display:flex;align-items:flex-end"><button class="btn ghost sm" onclick="saveStatus()">Save status</button></div></div>
+      <div id="statusSaved" class="muted" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h2><span class="n">§</span>The law behind it</h2>
+      <div class="law"><div class="lc">Higher Education Act §455(h) · 20 U.S.C. §1087e(h)</div><div class="ld">The federal statute authorizing borrowers to assert a defense to repayment based on the school's acts or omissions.</div></div>
+      <div class="law"><div class="lc">34 CFR Part 685, Subpart D</div><div class="ld">The regulations that define the standard, evidence, and process for Borrower Defense on Direct Loans.</div></div>
+      <div class="law"><div class="lc">Closed School Discharge · 34 CFR §685.214</div><div class="ld">A separate path: if your school closed while you were enrolled or shortly after you left, your loans may be cancelled.</div></div>
+      <div class="law"><div class="lc">False Certification Discharge</div><div class="ld">If the school falsely certified your eligibility (e.g., signed you up though you couldn't benefit), that's another route to cancellation.</div></div>
+      <div class="law"><div class="lc">Sweet v. McMahon (settlement)</div><div class="ld">Governs many 2017–2022 claims and set timelines for the Department to issue decisions. Relevant if you applied in that window.</div></div>
+    </div>
+    <div class="card">
+      <h2><span class="n">⌂</span>Free help &amp; official links</h2>
+      <ul class="clean">
+        <li><b>Apply / check status:</b> <a href="https://studentaid.gov/borrower-defense" target="_blank" rel="noopener">StudentAid.gov/borrower-defense</a></li>
+        <li><b>Your loans &amp; servicer:</b> <a href="https://studentaid.gov" target="_blank" rel="noopener">StudentAid.gov</a> dashboard</li>
+        <li><b>Project on Predatory Student Lending</b> — free legal information on borrower defense and predatory schools (ppsl.org).</li>
+        <li><b>Federal Student Aid Ombudsman</b> — for disputes your servicer won't resolve.</li>
+        <li><b>Your state attorney general</b> — for complaints about a school's conduct.</li>
+      </ul>
+    </div>
+    <div class="foot">Sources: U.S. Department of Education / Federal Student Aid (StudentAid.gov), Higher Education Act §455(h), 34 CFR Part 685 Subpart D, Sweet v. McMahon settlement, Project on Predatory Student Lending. Program rules and timelines change — confirm current status before relying on any detail.</div>
+  </section>
+</div>
+
+<script>
+var LS='nana_bd';
+function $(id){return document.getElementById(id);}
+function esc(s){return (s||'').replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+var D={elig:{},evid:{},custom:[],b:{},s:{}};
+try{D=Object.assign(D,JSON.parse(localStorage.getItem(LS))||{});}catch(e){}
+function save(){localStorage.setItem(LS,JSON.stringify(D));}
+
+function go(p){
+  document.querySelectorAll('#tabs button').forEach(function(b){b.classList.toggle('active',b.dataset.p===p);});
+  document.querySelectorAll('section.page').forEach(function(s){s.classList.toggle('show',s.id==='page-'+p);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('#tabs button').forEach(function(b){b.onclick=function(){go(b.dataset.p);};});
+
+/* eligibility */
+var ELIG=[
+['mis','<b>Misrepresentation or misconduct.</b> The school (or its recruiters) made an untrue or misleading statement, or broke the law, to get you to enroll or stay.'],
+['mat','<b>It mattered.</b> That statement was important to your decision — you wouldn\'t have enrolled (or taken the loans) without it.'],
+['rel','<b>You relied on it.</b> You acted on the promise — chose the school, signed up, borrowed.'],
+['harm','<b>You were harmed.</b> You suffered real harm: debt for a worthless or misrepresented education, lost time, no job in the field, credits that didn\'t transfer.']];
+function renderElig(){
+  $('elig').innerHTML=ELIG.map(function(e){
+    return '<div class="check"><input type="checkbox" id="el_'+e[0]+'" '+(D.elig[e[0]]?'checked':'')+' onchange="toggleElig(\''+e[0]+'\')"><div class="ct">'+e[1]+'</div></div>';
+  }).join('');
+  scoreElig();
+}
+function toggleElig(k){D.elig[k]=$('el_'+k).checked;save();scoreElig();}
+function scoreElig(){
+  var n=ELIG.filter(function(e){return D.elig[e[0]];}).length;
+  var box=$('eligScore');box.style.display='block';
+  if(n===4)box.innerHTML='<b>All four elements ✓</b> — that\'s the profile of a strong Borrower Defense claim. Build your evidence and statement next.';
+  else if(n>=2)box.innerHTML='<b>'+n+' of 4 so far.</b> You may still have a claim — the more you can show, the stronger it is. Keep gathering evidence for the missing pieces.';
+  else box.innerHTML='<b>'+n+' of 4.</b> Borrower Defense needs school <i>misconduct</i> you relied on. If that\'s not your situation, check Closed School or False Certification discharge, or other relief on StudentAid.gov.';
+}
+
+/* evidence */
+var EVID=[['enroll','Enrollment agreement / contract'],['catalog','Course catalog or program brochure'],['emails','Emails or texts with recruiters/admissions'],['web','Screenshots of the school\'s website or ads (incl. Wayback Machine)'],['placement','Anything about job-placement or salary claims'],['gov','FTC / CFPB / state AG action against the school'],['loans','List of your Direct Loans from StudentAid.gov'],['story','Your written, dated personal account']];
+function renderEvid(){
+  var base=EVID.map(function(e){
+    return '<div class="check"><input type="checkbox" id="ev_'+e[0]+'" '+(D.evid[e[0]]?'checked':'')+' onchange="toggleEvid(\''+e[0]+'\')"><div class="ct">'+e[1]+'</div></div>';
+  }).join('');
+  var custom=(D.custom||[]).map(function(c,i){
+    return '<div class="check"><input type="checkbox" id="evc_'+i+'" '+(c.done?'checked':'')+' onchange="toggleCustom('+i+')"><div class="ct">'+esc(c.t)+'</div></div>';
+  }).join('');
+  $('evid').innerHTML=base+custom;
+}
+function toggleEvid(k){D.evid[k]=$('ev_'+k).checked;save();}
+function toggleCustom(i){D.custom[i].done=$('evc_'+i).checked;save();}
+function addEvid(){var v=$('ev_custom').value.trim();if(!v)return;D.custom=D.custom||[];D.custom.push({t:v,done:false});$('ev_custom').value='';save();renderEvid();}
+
+/* builder */
+function bget(k){return (D.b[k]||'').trim();}
+['school','loc','prog','dates','promise','rely','truth','harm'].forEach(function(k){
+  document.addEventListener('input',function(e){if(e.target&&e.target.id==='b_'+k){D.b[k]=e.target.value;save();}});
+});
+function loadBuilder(){['school','loc','prog','dates','promise','rely','truth','harm'].forEach(function(k){if($('b_'+k)&&D.b[k])$('b_'+k).value=D.b[k];});}
+function genStatement(){
+  var b=D.b;
+  var t='STATEMENT IN SUPPORT OF BORROWER DEFENSE TO REPAYMENT\n\n'+
+'I enrolled at '+(bget('school')||'[school]')+(bget('loc')?' ('+bget('loc')+')':'')+' in the '+(bget('prog')||'[program]')+' program'+(bget('dates')?', '+bget('dates'):'')+'. I took out federal Direct Loans to pay for it.\n\n'+
+'What the school told me: '+(bget('promise')||'[what you were promised]')+'\n\n'+
+'Why it mattered and how I relied on it: '+(bget('rely')||'[how you relied]')+' These representations were important to my decision; I would not have enrolled or borrowed without them.\n\n'+
+'What actually happened: '+(bget('truth')||'[the truth]')+'\n\n'+
+'How I was harmed: '+(bget('harm')||'[your harm]')+'\n\n'+
+'Because '+(bget('school')||'the school')+' made misleading representations that I reasonably relied on to my detriment, I respectfully request a discharge of the federal Direct Loans associated with my enrollment, and a refund of amounts paid, under the Higher Education Act, 20 U.S.C. § 1087e(h), and 34 CFR Part 685, Subpart D.\n\nI declare the above is true and correct to the best of my knowledge.';
+  $('stmtOut').style.display='block';$('stmtOut').textContent=t;
+}
+function copyStatement(){var t=$('stmtOut').textContent;if(!t){genStatement();t=$('stmtOut').textContent;}navigator.clipboard.writeText(t);}
+
+/* status */
+function loadStatus(){['date','conf','status'].forEach(function(k){if($('s_'+k)&&D.s[k])$('s_'+k).value=D.s[k];});}
+function saveStatus(){['date','conf','status'].forEach(function(k){D.s[k]=$('s_'+k).value;});save();$('statusSaved').textContent='✓ Saved on this device';setTimeout(function(){$('statusSaved').textContent='';},2500);}
+
+renderElig();renderEvid();loadBuilder();loadStatus();
+</script>
+</body>
+</html>

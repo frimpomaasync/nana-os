@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Repair Desk · Nana OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Lustria&display=swap" rel="stylesheet">
+<style>
+:root{
+  --text:#3d3327; --head:#15202e; --muted:#8a7b6b;
+  --green:#2e7d5b; --red:#a94436; --gold:#b87333; --blue:#1f3a5f; --purple:#7a5c3e;
+  --glass:rgba(255,255,255,.66); --glass2:rgba(255,255,255,.5); --gborder:rgba(60,45,25,.1);
+  --hairline:rgba(255,255,255,.85);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Lustria',Georgia,serif;color:var(--text);padding:14px 14px 60px;min-height:100vh;
+  background:radial-gradient(900px 500px at 85% -5%,rgba(184,115,51,.07),transparent 60%),radial-gradient(800px 520px at -10% 20%,rgba(31,58,95,.06),transparent 60%),#fbfaf7;}
+h1,h2,h3,h4,.statv,button,.tag,.tabs button{font-family:'Archivo',-apple-system,sans-serif;color:var(--head);letter-spacing:-.01em}
+.wrap{max-width:880px;margin:0 auto}
+.masthead{padding:8px 4px 4px}
+.eyebrow{font-family:'Archivo',sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.32em;color:var(--gold);text-transform:uppercase}
+.masthead h1{font-size:2rem;font-weight:900;letter-spacing:-.03em;margin-top:6px;line-height:1}
+.masthead p{color:var(--muted);font-size:.92rem;margin-top:8px;max-width:640px;line-height:1.5}
+.disclaim{font-size:.74rem;color:var(--muted);background:var(--glass2);border:1px solid var(--gborder);border-left:3px solid var(--gold);border-radius:6px 12px 12px 6px;padding:9px 12px;margin-top:12px;line-height:1.5}
+nav.tabs{display:flex;gap:5px;flex-wrap:wrap;margin:16px 0 14px;position:sticky;top:6px;z-index:40;background:rgba(251,250,247,.82);backdrop-filter:blur(12px);padding:6px;border-radius:16px;border:1px solid var(--hairline)}
+nav.tabs button{flex:1 1 auto;background:none;border:none;color:var(--muted);padding:8px 12px;border-radius:11px;cursor:pointer;font-size:.74rem;font-weight:700;letter-spacing:.02em;white-space:nowrap;transition:.18s}
+nav.tabs button.active{color:#fff;background:var(--blue);box-shadow:0 5px 14px rgba(31,58,95,.3)}
+nav.tabs button:hover:not(.active){color:var(--head)}
+section.page{display:none;animation:fade .3s ease}section.page.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.card{background:var(--glass);border:1px solid var(--hairline);border-radius:20px;padding:18px;margin-bottom:14px;backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(50,40,20,.07)}
+.card h2{font-size:1.05rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.card h2 .n{width:26px;height:26px;border-radius:8px;background:var(--blue);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;flex:0 0 auto}
+.card h3{font-size:.95rem;font-weight:800;margin:14px 0 6px}
+.muted{color:var(--muted);font-size:.86rem;line-height:1.55}
+p.lead{font-size:.92rem;line-height:1.6;margin:6px 0}
+ul.clean{list-style:none;margin:8px 0}
+ul.clean li{padding:7px 0 7px 26px;position:relative;font-size:.88rem;line-height:1.5;border-bottom:1px solid var(--gborder)}
+ul.clean li:last-child{border-bottom:none}
+ul.clean li::before{content:"";position:absolute;left:4px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--gold)}
+ul.clean li.ok::before{background:var(--green)}ul.clean li.bad::before{background:var(--red)}
+.step{display:flex;gap:13px;padding:11px 0;border-bottom:1px solid var(--gborder)}
+.step:last-child{border-bottom:none}
+.step .sn{flex:0 0 30px;height:30px;border-radius:50%;background:var(--head);color:#fff;font-family:'Archivo';font-weight:800;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.step .sb{flex:1}
+.step .sb b{font-family:'Archivo';font-weight:800;color:var(--head);font-size:.92rem}
+.step .sb p{font-size:.85rem;color:var(--muted);margin-top:3px;line-height:1.5}
+.statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+.stat{background:var(--glass2);border:1px solid var(--gborder);border-radius:14px;padding:13px}
+.stat .statv{font-weight:900;font-size:1.5rem;letter-spacing:-.03em;color:var(--blue)}
+.stat .statl{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:4px;font-weight:700;font-family:'Archivo'}
+.bar{height:9px;border-radius:99px;background:rgba(60,45,25,.1);overflow:hidden;margin:5px 0}
+.bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--gold))}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:.66rem;font-weight:700;font-family:'Archivo';letter-spacing:.03em}
+.t-red{background:rgba(169,68,54,.1);color:var(--red)}.t-gold{background:rgba(184,115,51,.13);color:#9a5f26}
+.t-green{background:rgba(46,125,91,.1);color:var(--green)}.t-blue{background:rgba(31,58,95,.09);color:var(--blue)}
+label{display:block;font-size:.7rem;font-weight:700;font-family:'Archivo';text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:9px 0 4px}
+input,select,textarea{width:100%;font-family:'Lustria',serif;font-size:.9rem;border:1px solid var(--gborder);border-radius:11px;padding:9px 11px;background:rgba(255,255,255,.8);color:var(--head);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,115,51,.13)}
+textarea{resize:vertical;line-height:1.5}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;border:none;border-radius:99px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:.82rem;font-family:'Archivo';transition:.15s;box-shadow:0 5px 14px rgba(31,58,95,.25)}
+.btn:hover{transform:translateY(-1px)}
+.btn.gold{background:var(--gold);box-shadow:0 5px 14px rgba(184,115,51,.28)}
+.btn.ghost{background:rgba(255,255,255,.7);color:var(--head);border:1px solid var(--gborder);box-shadow:none}
+.btn.sm{padding:6px 13px;font-size:.74rem}
+.itemcard{background:var(--glass2);border:1px solid var(--gborder);border-radius:14px;padding:13px;margin-bottom:9px}
+.itemcard .ih{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.itemcard .it{font-family:'Archivo';font-weight:800;color:var(--head);font-size:.92rem}
+.itemcard .im{font-size:.76rem;color:var(--muted);margin-top:3px}
+.x{background:none;border:none;color:#c5bdb3;cursor:pointer;font-size:1rem;line-height:1}
+.deadline{font-size:.72rem;font-weight:700;font-family:'Archivo'}
+.dl-ok{color:var(--green)}.dl-soon{color:var(--gold)}.dl-over{color:var(--red)}
+.letterbox{background:#fffdf9;border:1px solid var(--gborder);border-radius:12px;padding:16px;margin-top:10px;font-family:'Courier New',monospace;font-size:.8rem;line-height:1.5;white-space:pre-wrap;color:#2b2620;max-height:420px;overflow:auto}
+.warn{background:rgba(169,68,54,.07);border:1px solid rgba(169,68,54,.25);border-radius:12px;padding:12px 14px;font-size:.82rem;line-height:1.55;color:#7a2e22;margin:10px 0}
+.warn b{color:var(--red);font-family:'Archivo'}
+.good{background:rgba(46,125,91,.07);border:1px solid rgba(46,125,91,.22);border-radius:12px;padding:12px 14px;font-size:.82rem;line-height:1.55;margin:10px 0}
+details{border:1px solid var(--gborder);border-radius:12px;padding:4px 14px;margin-bottom:8px;background:var(--glass2)}
+details summary{cursor:pointer;font-family:'Archivo';font-weight:700;font-size:.88rem;color:var(--head);padding:9px 0;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+ ";color:var(--gold);font-weight:900}
+details[open] summary::before{content:"– "}
+details .body{font-size:.85rem;line-height:1.6;color:var(--text);padding:2px 0 12px}
+details .body b{color:var(--head);font-family:'Archivo'}
+.law{padding:11px 0;border-bottom:1px solid var(--gborder)}
+.law:last-child{border:none}
+.law .lc{font-family:'Archivo';font-weight:800;color:var(--blue);font-size:.9rem}
+.law .ld{font-size:.84rem;color:var(--text);margin-top:3px;line-height:1.5}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.foot{text-align:center;color:var(--muted);font-size:.74rem;margin-top:18px;line-height:1.5}
+a{color:var(--blue);font-weight:700}
+@media(max-width:560px){.masthead h1{font-size:1.6rem}nav.tabs{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <div class="eyebrow">Nana OS · Financial Recovery</div>
+    <h1>Credit Repair Desk</h1>
+    <p>Audit your report, find what's hurting you, and fire off firm, law-backed dispute letters — built around your real rights under the FCRA, the CFPB complaint process, and Maryland law. The honest path to a higher score.</p>
+    <div class="disclaim"><b>Educational tool, not legal advice.</b> This walks you through exercising rights you already have. Dispute only information that is genuinely inaccurate, incomplete, outdated, unverifiable, or not yours. You can do every step here yourself, for free — no one needs to be paid to "fix" your credit.</div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button class="active" data-p="start">Start Here</button>
+    <button data-p="report">Get My Report</button>
+    <button data-p="audit">Audit &amp; Log</button>
+    <button data-p="letters">Dispute Letters</button>
+    <button data-p="escalate">Escalate</button>
+    <button data-p="laws">The Laws</button>
+  </nav>
+
+  <!-- START -->
+  <section class="page show" id="page-start">
+    <div class="card">
+      <h2><span class="n">★</span>The goal: a clean report and a climbing score</h2>
+      <p class="lead">An 800 score is real and reachable — but it comes from two things working together, not from disputes alone:</p>
+      <div class="row" style="margin-top:8px">
+        <div class="stat"><div class="statv">1</div><div class="statl">Remove genuine errors</div></div>
+        <div class="stat"><div class="statv">2</div><div class="statl">Build strong habits</div></div>
+      </div>
+      <p class="muted" style="margin-top:10px">Roughly a third of credit reports contain an error. Clearing inaccurate, unverifiable, or outdated items can move your score quickly. The rest of the climb to 800 is behavior: on-time payments, low balances, and patience. This desk handles both.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">%</span>What actually moves a FICO score</h2>
+      <div id="factorBars"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">!</span>The four golden rules</h2>
+      <ul class="clean">
+        <li class="bad"><b>Dispute the truth, not your debts.</b> Only challenge items that are actually wrong, unverifiable, mixed-up, duplicated, or past the legal reporting window. Disputing accurate information is temporary — it returns once verified — and knowingly making false statements can be fraud.</li>
+        <li class="bad"><b>Identity-theft blocks (§605B) are only for real identity theft.</b> That block requires a sworn FTC or police report. Filing a false one is a federal crime. Never claim fraud on an account you actually opened.</li>
+        <li class="ok"><b>Habits are the real 800 engine.</b> Pay every bill on time, keep card balances under 30% (then under 10%), keep old accounts open, and space out new applications.</li>
+        <li class="ok"><b>You never have to pay for this.</b> Under the Credit Repair Organizations Act, no company can charge you upfront or promise a specific score. Everything here is your free, do-it-yourself right.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">→</span>How this desk works</h2>
+      <div class="step"><div class="sn">1</div><div class="sb"><b>Get My Report</b><p>Pull all three bureaus free from the official site, then upload the file into this Cowork chat so it can be read line by line.</p></div></div>
+      <div class="step"><div class="sn">2</div><div class="sb"><b>Audit &amp; Log</b><p>Find what's hurting you. Log every questionable item — wrong balances, accounts you don't recognize, old collections, duplicates.</p></div></div>
+      <div class="step"><div class="sn">3</div><div class="sb"><b>Dispute Letters</b><p>Generate a firm, statute-citing letter for each item — bureau disputes, furnisher disputes, validation demands, obsolete-item removals.</p></div></div>
+      <div class="step"><div class="sn">4</div><div class="sb"><b>Escalate</b><p>If they stonewall, file with the CFPB and the Maryland Attorney General. This is where most stubborn items finally fall off.</p></div></div>
+      <button class="btn" style="margin-top:14px" onclick="go('report')">Start with my report →</button>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="page" id="page-report">
+    <div class="card">
+      <h2><span class="n">1</span>Pull your three reports — free and official</h2>
+      <div class="good"><b>Use the only federally authorized site: <a href="https://www.annualcreditreport.com" target="_blank" rel="noopener">annualcreditreport.com</a></b> — not lookalike names. It's free, by law, with no card required. (You can pull all three bureaus weekly at no cost.)</div>
+      <div class="step"><div class="sn">1</div><div class="sb"><b>Go to annualcreditreport.com</b><p>Click "Request your free credit reports." Fill in your name, address, date of birth, and SSN to verify identity.</p></div></div>
+      <div class="step"><div class="sn">2</div><div class="sb"><b>Select all three: Equifax, Experian, TransUnion</b><p>Request them together so you can compare. An error often sits on one bureau but not the others — that mismatch is your evidence.</p></div></div>
+      <div class="step"><div class="sn">3</div><div class="sb"><b>Download each as a PDF</b><p>Save all three. Answer the identity questions if prompted. If a bureau blocks the online pull, request it by phone or mail (steps below).</p></div></div>
+      <div class="step"><div class="sn">4</div><div class="sb"><b>Upload the PDFs into this Cowork chat</b><p>Drag the files into the chat and say "audit my credit report." Every account, balance, date, and inquiry gets read and checked against the law — then logged in the Audit tab here.</p></div></div>
+    </div>
+    <div class="card">
+      <h2><span class="n">+</span>While you're there: lock things down</h2>
+      <ul class="clean">
+        <li>Consider a <b>security freeze</b> at each bureau (free) — it blocks new-account fraud and you can lift it anytime.</li>
+        <li>Also pull your specialty reports if relevant: <b>ChexSystems</b> (banking), <b>LexisNexis</b>, and your free annual report from the four nationwide specialty agencies.</li>
+        <li>Save the date you pulled each report. Disputes are time-stamped, and the bureaus' clock starts when they receive yours.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2><span class="n">✉</span>Can't pull online? Request by mail</h2>
+      <p class="muted">Annual Credit Report Request Service, P.O. Box 105281, Atlanta, GA 30348-5281. Include name, current and prior address, DOB, and SSN. Or call 1-877-322-8228.</p>
+    </div>
+  </section>
+
+  <!-- AUDIT -->
+  <section class="page" id="page-audit">
+    <div class="card">
+      <h2><span class="n">⚑</span>What hurts your score — scan for each</h2>
+      <p class="muted">As you read each report, look for these. Anything that's wrong, not yours, or too old to report becomes a logged item below.</p>
+      <div id="hurtList"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">⊕</span>Your details (saved on this device only)</h2>
+      <p class="muted">These auto-fill your letters. They never leave your device — stored locally in your browser.</p>
+      <div class="row"><div><label>Full legal name</label><input id="pf_name" placeholder="Jane A. Doe"></div></div>
+      <div class="row"><div><label>Street address</label><input id="pf_addr" placeholder="123 Main St"></div><div style="flex:0 0 90px"><label>City</label><input id="pf_city" placeholder="Baltimore"></div></div>
+      <div class="row"><div style="flex:0 0 70px"><label>State</label><input id="pf_state" placeholder="MD" value="MD"></div><div style="flex:0 0 90px"><label>ZIP</label><input id="pf_zip" placeholder="21201"></div><div><label>Date of birth</label><input id="pf_dob" placeholder="MM/DD/YYYY"></div></div>
+      <div class="row"><div style="flex:0 0 130px"><label>Last 4 of SSN</label><input id="pf_ssn" maxlength="4" placeholder="6789"></div><div></div></div>
+      <button class="btn ghost sm" style="margin-top:10px" onclick="saveProfile()">Save my details</button>
+      <span id="pfSaved" class="muted"></span>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">＋</span>Log a questionable item</h2>
+      <div class="row"><div><label>Creditor / furnisher</label><input id="it_cred" placeholder="e.g. Capital One / Midland Credit"></div><div style="flex:0 0 150px"><label>Account # (last digits)</label><input id="it_acct" placeholder="****1234"></div></div>
+      <div class="row">
+        <div><label>On which bureau(s)</label><select id="it_bureau"><option>All three</option><option>Equifax</option><option>Experian</option><option>TransUnion</option><option>Equifax + Experian</option><option>Experian + TransUnion</option><option>Equifax + TransUnion</option></select></div>
+        <div><label>Item type</label><select id="it_type"><option>Collection</option><option>Charge-off</option><option>Late payment</option><option>Account not mine</option><option>Duplicate listing</option><option>Wrong balance / status</option><option>Hard inquiry I didn't authorize</option><option>Public record / bankruptcy</option><option>Outdated (too old to report)</option></select></div>
+      </div>
+      <div class="row">
+        <div><label>Why it's wrong (your dispute reason)</label><select id="it_reason">
+          <option>Inaccurate — the information reported is incorrect</option>
+          <option>Not mine — I never opened this account</option>
+          <option>Unverifiable — they cannot prove it's valid</option>
+          <option>Duplicate — reported more than once</option>
+          <option>Obsolete — older than the legal reporting limit</option>
+          <option>Already paid / settled but shown as owing</option>
+          <option>Identity theft — resulted from fraud (I have a report)</option>
+          <option>Never validated by the collector</option>
+        </select></div>
+        <div style="flex:0 0 140px"><label>Amount ($)</label><input id="it_amt" placeholder="0"></div>
+      </div>
+      <div class="row"><div><label>Date of first delinquency (if known)</label><input id="it_dofd" placeholder="MM/YYYY"></div><div></div></div>
+      <button class="btn" style="margin-top:12px" onclick="addItem()">＋ Log this item</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">▤</span>Logged items <span id="itemCount" class="tag t-blue" style="margin-left:6px"></span></h2>
+      <div id="itemList"><p class="muted">Nothing logged yet. Add items above as you spot them in your report — or upload your report to the chat and they'll be filled in for you.</p></div>
+    </div>
+  </section>
+
+  <!-- LETTERS -->
+  <section class="page" id="page-letters">
+    <div class="card">
+      <h2><span class="n">✍</span>Generate a dispute letter</h2>
+      <p class="muted">Pick a logged item and a letter type. The letter fills in your details and cites the exact statutes. Send Round 1 to the bureaus first; escalate if they "verify" without proof.</p>
+      <div class="row" style="margin-top:8px">
+        <div><label>Item</label><select id="lt_item"></select></div>
+        <div><label>Letter type</label><select id="lt_type" onchange="onLetterType()">
+          <option value="bureau1">Round 1 — Bureau dispute (FCRA §611)</option>
+          <option value="bureau2">Round 2 — Method of verification (§611(a)(7))</option>
+          <option value="furnisher">Furnisher direct dispute (FCRA §623)</option>
+          <option value="validation">Debt validation (FDCPA §809 + MD MCDCA)</option>
+          <option value="obsolete">Obsolete item removal (FCRA §605)</option>
+          <option value="idtheft">Identity-theft block (FCRA §605B)</option>
+          <option value="mcala">Unlicensed debt buyer (Maryland MCALA)</option>
+          <option value="goodwill">Goodwill removal (paid lates)</option>
+          <option value="609">File &amp; source disclosure (FCRA §609)</option>
+        </select></div>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <div style="flex:0 0 150px"><label>Send to</label><select id="lt_dest"><option>Equifax</option><option>Experian</option><option>TransUnion</option><option>The furnisher/collector</option></select></div>
+        <div></div>
+      </div>
+      <div id="idtheftWarn" class="warn" style="display:none"><b>Stop — read this.</b> The §605B identity-theft block requires a sworn FTC report (IdentityTheft.gov) or police report. Use it <b>only</b> if this account truly resulted from identity theft. Filing a false report is a federal crime. If the account is simply inaccurate or unverifiable, use a §611 or §623 letter instead.</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" onclick="genLetter()">Generate letter</button>
+        <button class="btn ghost" onclick="copyLetter()">Copy</button>
+        <button class="btn ghost" onclick="printLetter()">Print / Save PDF</button>
+      </div>
+      <div id="letterOut" class="letterbox" style="display:none"></div>
+      <div id="mailTo" class="muted" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">▦</span>Bureau mailing addresses</h2>
+      <p class="muted">Always mail disputes <b>certified, return receipt requested</b>, and keep a copy. Certified mail is your proof the 30-day clock started.</p>
+      <ul class="clean">
+        <li><b>Equifax</b> — P.O. Box 740256, Atlanta, GA 30374</li>
+        <li><b>Experian</b> — P.O. Box 4500, Allen, TX 75013</li>
+        <li><b>TransUnion</b> — P.O. Box 2000, Chester, PA 19016</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ESCALATE -->
+  <section class="page" id="page-escalate">
+    <div class="card">
+      <h2><span class="n">↑</span>When they stonewall — escalate</h2>
+      <p class="muted">If a bureau "verifies" an item with no real proof, or a furnisher keeps reporting after a dispute, that may itself violate the FCRA. This is where most stubborn items finally come off.</p>
+    </div>
+    <div class="card">
+      <h2><span class="n">★</span>File a CFPB complaint</h2>
+      <div class="step"><div class="sn">1</div><div class="sb"><b>Go to consumerfinance.gov/complaint</b><p>Choose "Credit reporting" → the bureau or company. Companies are generally required to respond, usually within 15 days.</p></div></div>
+      <div class="step"><div class="sn">2</div><div class="sb"><b>Tell the story plainly</b><p>What you disputed, when, what they did wrong, and what you want (deletion or correction). Attach your letters and certified-mail receipts.</p></div></div>
+      <div class="step"><div class="sn">3</div><div class="sb"><b>Generate your complaint narrative</b><p>Pick an item and let this build a clean CFPB summary you can paste in.</p></div></div>
+      <div class="row" style="margin-top:10px"><div><label>Item</label><select id="cf_item"></select></div><div style="flex:0 0 150px;display:flex;align-items:flex-end"><button class="btn gold" onclick="genCFPB()">Build narrative</button></div></div>
+      <div id="cfpbOut" class="letterbox" style="display:none"></div>
+      <div class="row" style="margin-top:8px"><button class="btn ghost sm" onclick="copyCFPB()">Copy narrative</button></div>
+    </div>
+    <div class="card">
+      <h2><span class="n">⚖</span>Maryland escalation</h2>
+      <ul class="clean">
+        <li><b>Maryland Attorney General — Consumer Protection Division.</b> File at marylandattorneygeneral.gov/Pages/CPD. Powerful against in-state collectors and furnishers under the Maryland Consumer Protection Act.</li>
+        <li><b>Maryland Commissioner of Financial Regulation.</b> Check whether a debt buyer is licensed (labor.maryland.gov/finance). Under the Maryland Collection Agency Licensing Act, a debt buyer collecting a defaulted claim it bought generally must be licensed — and consumers have a private right of action (<i>LVNV Funding LLC v. Finch</i>).</li>
+        <li><b>Statute of limitations.</b> Most consumer debt in Maryland has a 3-year suit limit (4 for sale of goods). A collector can still report within FCRA windows, but suing on time-barred debt is restricted, and a payment after the limit no longer revives it (Cts. &amp; Jud. Proc. §5-1202).</li>
+        <li><b>Free legal help.</b> Maryland Volunteer Lawyers Service and Pro Bono Resource Center handle credit and debt cases. For willful FCRA violations you can recover damages plus attorney's fees (§§1681n–1681o).</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- LAWS -->
+  <section class="page" id="page-laws">
+    <div class="card">
+      <h2><span class="n">§</span>Your toolkit — in plain English</h2>
+      <p class="muted">These are the laws every letter on this desk leans on. Cite them by name and section; it signals you know your rights.</p>
+      <h3>Federal — Fair Credit Reporting Act (15 U.S.C. §1681)</h3>
+      <div class="law"><div class="lc">§609 · 15 U.S.C. §1681g — Your file disclosure</div><div class="ld">You can demand everything in your file and the source of each item. Good for seeing exactly what they have on you.</div></div>
+      <div class="law"><div class="lc">§611 · 15 U.S.C. §1681i — Reinvestigation</div><div class="ld">When you dispute, the bureau must do a <b>reasonable reinvestigation within 30 days</b> (45 if you add info), forward your dispute to the furnisher within 5 business days, and <b>delete anything it cannot verify</b>. You can also demand the method of verification (§611(a)(7)).</div></div>
+      <div class="law"><div class="lc">§623 · 15 U.S.C. §1681s-2 — Furnisher duties</div><div class="ld">The company reporting the debt must investigate disputes and <b>may not keep furnishing information it knows is inaccurate</b>. This is how you go straight to the source.</div></div>
+      <div class="law"><div class="lc">§605 · 15 U.S.C. §1681c — Obsolete information</div><div class="ld">Most negatives must drop off after <b>7 years</b>; collections/charge-offs after <b>7 years + 180 days</b> from the first delinquency; bankruptcies after <b>10 years</b>. Older than that = must be removed.</div></div>
+      <div class="law"><div class="lc">§605B · 15 U.S.C. §1681c-2 — Identity-theft block</div><div class="ld">With a valid identity-theft report, the bureau must <b>block fraudulent items within 4 business days</b>. Powerful — and reserved strictly for genuine fraud.</div></div>
+      <div class="law"><div class="lc">§607(b) · 15 U.S.C. §1681e(b) — Maximum possible accuracy</div><div class="ld">Bureaus must use reasonable procedures to assure <b>maximum possible accuracy</b>. Sloppy, automated "verification" can violate this.</div></div>
+      <div class="law"><div class="lc">§616–617 · 15 U.S.C. §§1681n–1681o — Damages</div><div class="ld">Willful violations: actual or statutory damages of <b>$100–$1,000</b>, possible punitive damages, plus attorney's fees. Negligent: actual damages plus fees.</div></div>
+      <h3>Federal — Fair Debt Collection Practices Act</h3>
+      <div class="law"><div class="lc">§809 · 15 U.S.C. §1692g — Debt validation</div><div class="ld">Dispute within 30 days of a collector's first contact and they must <b>stop collecting until they validate</b> the debt in writing.</div></div>
+      <h3>Maryland</h3>
+      <div class="law"><div class="lc">MD Consumer Debt Collection Act — Com. Law §14-201 et seq.</div><div class="ld">Bans abusive, deceptive, and unfair collection. You can sue for violations.</div></div>
+      <div class="law"><div class="lc">MD Consumer Protection Act — Com. Law §13-301 et seq.</div><div class="ld">Covers deceptive practices, including false credit reporting by in-state companies.</div></div>
+      <div class="law"><div class="lc">MD Collection Agency Licensing Act — Bus. Reg. Title 7</div><div class="ld">Debt buyers collecting defaulted debt they purchased generally must be <b>licensed</b>. Unlicensed activity is challengeable (<i>LVNV Funding LLC v. Finch</i>).</div></div>
+      <div class="law"><div class="lc">Statute of limitations — Cts. &amp; Jud. Proc. §5-101, §5-1202</div><div class="ld">3 years for most consumer debt (4 for sale of goods). Suing on time-barred debt is restricted; a late payment doesn't revive an expired debt.</div></div>
+      <h3>Consumer protection</h3>
+      <div class="law"><div class="lc">Credit Repair Organizations Act — 15 U.S.C. §1679</div><div class="ld">No one can charge you upfront or promise a specific result to "repair" credit. Everything here is free to do yourself.</div></div>
+    </div>
+    <div class="foot">Sources: FCRA (15 U.S.C. §1681), FDCPA (15 U.S.C. §1692), CFPB, Maryland Code (Commercial Law &amp; Business Regulation). Verify current law or consult a consumer attorney before relying on any specific provision.</div>
+  </section>
+</div>
+
+<script>
+var LS_P='nana_credit_profile', LS_I='nana_credit_items';
+function $(id){return document.getElementById(id);}
+function esc(s){return (s||'').replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+var profile={}, items=[];
+try{profile=JSON.parse(localStorage.getItem(LS_P))||{};}catch(e){}
+try{items=JSON.parse(localStorage.getItem(LS_I))||[];}catch(e){}
+
+/* ---- tabs ---- */
+function go(p){
+  document.querySelectorAll('#tabs button').forEach(function(b){b.classList.toggle('active',b.dataset.p===p);});
+  document.querySelectorAll('section.page').forEach(function(s){s.classList.toggle('show',s.id==='page-'+p);});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('#tabs button').forEach(function(b){b.onclick=function(){go(b.dataset.p);};});
+
+/* ---- factor bars ---- */
+var FACTORS=[['Payment history',35,'On-time payments. The single biggest lever.'],
+['Amounts owed (utilization)',30,'Balances vs. limits. Keep under 30%, ideally under 10%.'],
+['Length of credit history',15,'Age of your accounts. Keep old ones open.'],
+['New credit / inquiries',10,'Recent applications. Space them out.'],
+['Credit mix',10,'A healthy blend of cards and loans.']];
+$('factorBars').innerHTML=FACTORS.map(function(f){
+  return '<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:.85rem"><b style="font-family:Archivo;color:var(--head)">'+f[0]+'</b><span class="muted">'+f[1]+'%</span></div><div class="bar"><i style="width:'+f[1]*2.7+'%"></i></div><div class="muted" style="font-size:.78rem">'+f[2]+'</div></div>';
+}).join('');
+
+/* ---- what hurts list ---- */
+var HURT=[
+['Late payments','t-red','30/60/90-day lates — recent ones hurt most. A single 90-day late can drop a good score 80+ points.'],
+['Collections','t-red','A third party bought or was assigned the debt. Often the most disputable — they must prove they own and can collect it.'],
+['Charge-offs','t-red','The original creditor wrote it off. Still reportable, but the balance, dates, and status are frequently wrong.'],
+['High utilization','t-gold','Balances near your limits. Not a dispute item — pay down to fix fast.'],
+['Public records / bankruptcy','t-red','Verify dates and amounts; bankruptcies must drop at 10 years, the rest sooner.'],
+['Hard inquiries','t-gold','Applications you authorized fade in ~12 months. Inquiries you did NOT authorize can be disputed.'],
+['Duplicate listings','t-red','The same debt reported twice (e.g., original creditor AND collector showing a balance) double-counts against you.'],
+['Accounts not yours','t-red','Mixed files or fraud. Strong grounds for deletion — or a §605B block if it is identity theft.'],
+['Outdated items','t-gold','Anything past the FCRA reporting window (7 yrs / 7 yrs+180 days / 10 yrs) must be removed.']];
+$('hurtList').innerHTML=HURT.map(function(h){
+  return '<details><summary>'+h[0]+'</summary><div class="body"><span class="tag '+h[1]+'">'+(h[1]==='t-red'?'High impact':'Watch')+'</span><p style="margin-top:6px">'+h[2]+'</p></div></details>';
+}).join('');
+
+/* ---- profile ---- */
+function loadProfile(){['name','addr','city','state','zip','dob','ssn'].forEach(function(k){if($('pf_'+k)&&profile[k]!=null)$('pf_'+k).value=profile[k];});}
+function saveProfile(){
+  ['name','addr','city','state','zip','dob','ssn'].forEach(function(k){profile[k]=$('pf_'+k).value.trim();});
+  localStorage.setItem(LS_P,JSON.stringify(profile));
+  $('pfSaved').textContent='  ✓ Saved on this device';
+  setTimeout(function(){$('pfSaved').textContent='';},2500);
+}
+loadProfile();
+
+/* ---- items ---- */
+function saveItems(){localStorage.setItem(LS_I,JSON.stringify(items));}
+function addItem(){
+  var c=$('it_cred').value.trim(); if(!c){$('it_cred').focus();return;}
+  items.push({id:Date.now(),cred:c,acct:$('it_acct').value.trim(),bureau:$('it_bureau').value,type:$('it_type').value,reason:$('it_reason').value,amt:$('it_amt').value.trim(),dofd:$('it_dofd').value.trim(),sent:null,status:'Logged',round:0});
+  saveItems();$('it_cred').value='';$('it_acct').value='';$('it_amt').value='';$('it_dofd').value='';
+  renderItems();fillItemSelects();
+}
+function delItem(id){items=items.filter(function(i){return i.id!==id;});saveItems();renderItems();fillItemSelects();}
+function markSent(id){
+  var it=items.find(function(i){return i.id===id;}); if(!it)return;
+  it.sent=Date.now(); it.round=(it.round||0)+1; it.status='Disputed · Round '+it.round;
+  saveItems();renderItems();
+}
+function setStatus(id,v){var it=items.find(function(i){return i.id===id;});if(it){it.status=v;saveItems();renderItems();}}
+function deadlineHTML(it){
+  if(!it.sent)return '<span class="muted" style="font-size:.72rem">Not sent yet</span>';
+  var days=Math.ceil((it.sent+30*864e5-Date.now())/864e5);
+  var cls=days<0?'dl-over':(days<=7?'dl-soon':'dl-ok');
+  var txt=days<0?('Bureau deadline passed by '+(-days)+'d — escalate to CFPB'):(days+' days left for them to respond');
+  return '<span class="deadline '+cls+'">⏳ '+txt+'</span>';
+}
+function renderItems(){
+  $('itemCount').textContent=items.length+(items.length===1?' item':' items');
+  if(!items.length){$('itemList').innerHTML='<p class="muted">Nothing logged yet. Add items above as you spot them in your report — or upload your report to the chat and they\'ll be filled in for you.</p>';return;}
+  $('itemList').innerHTML=items.map(function(it){
+    return '<div class="itemcard"><div class="ih"><div><div class="it">'+esc(it.cred)+(it.acct?' · '+esc(it.acct):'')+'</div>'+
+      '<div class="im">'+esc(it.type)+' · '+esc(it.bureau)+(it.amt?' · $'+esc(it.amt):'')+'</div>'+
+      '<div class="pill-row"><span class="tag t-gold">'+esc(it.reason.split(' — ')[0])+'</span><span class="tag t-blue">'+esc(it.status)+'</span></div>'+
+      '<div style="margin-top:6px">'+deadlineHTML(it)+'</div></div>'+
+      '<button class="x" onclick="delItem('+it.id+')" title="Remove">✕</button></div>'+
+      '<div class="row" style="margin-top:9px"><button class="btn ghost sm" onclick="gotoLetter('+it.id+')">Write letter</button>'+
+      '<button class="btn ghost sm" onclick="markSent('+it.id+')">Mark mailed today</button>'+
+      '<button class="btn ghost sm" onclick="setStatus('+it.id+',\'Deleted ✓\')">Mark deleted</button></div></div>';
+  }).join('');
+}
+function fillItemSelects(){
+  var opts=items.length?items.map(function(it){return '<option value="'+it.id+'">'+esc(it.cred)+(it.acct?' '+esc(it.acct):'')+' — '+esc(it.type)+'</option>';}).join(''):'<option value="">Log an item first (Audit tab)</option>';
+  ['lt_item','cf_item'].forEach(function(s){if($(s))$(s).innerHTML=opts;});
+}
+function gotoLetter(id){go('letters');$('lt_item').value=id;onLetterType();}
+renderItems();fillItemSelects();
+
+/* ---- letter engine ---- */
+function addr3(d){return d==='Equifax'?'Equifax Information Services LLC\nP.O. Box 740256\nAtlanta, GA 30374':d==='Experian'?'Experian\nP.O. Box 4500\nAllen, TX 75013':d==='TransUnion'?'TransUnion Consumer Solutions\nP.O. Box 2000\nChester, PA 19016':'[Furnisher / Collector name]\n[Their mailing address]';}
+function today(){return new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});}
+function head(dest){
+  var p=profile;
+  var from=(p.name||'[Your name]')+'\n'+(p.addr||'[Street]')+'\n'+(p.city||'[City]')+', '+(p.state||'MD')+' '+(p.zip||'[ZIP]');
+  var idline='DOB: '+(p.dob||'[MM/DD/YYYY]')+'   ·   SSN (last 4): '+(p.ssn||'[####]');
+  return from+'\n'+idline+'\n\n'+today()+'\n\n'+addr3(dest)+'\n\n';
+}
+function ref(it){return 'RE: Formal dispute — '+it.cred+(it.acct?', account '+it.acct:'')+'\n\n';}
+function sig(){return '\n\nSincerely,\n\n\n'+(profile.name||'[Your name]')+'\n\nEnclosures: copy of government ID, proof of address, and supporting documents.';}
+
+function LET(type,it,dest){
+  var who=it.cred+(it.acct?' (acct '+it.acct+')':'');
+  var reason=it.reason;
+  if(type==='bureau1') return head(dest)+ref(it)+
+'To Whom It May Concern:\n\nI am exercising my rights under the Fair Credit Reporting Act to dispute the following item in my credit file, which is inaccurate and/or unverifiable:\n\n   • '+who+' — '+reason+'\n\nUnder 15 U.S.C. § 1681i(a)(1), you must conduct a reasonable reinvestigation within 30 days. Under § 1681i(a)(2) you must forward all relevant information I provide to the furnisher within five business days. Under § 1681e(b) you are required to follow reasonable procedures to assure maximum possible accuracy of the information you report about me.\n\nIf the furnisher cannot verify this item with original, verifiable records, it must be promptly deleted under 15 U.S.C. § 1681i(a)(5)(A). Please do not treat this dispute as frivolous; it is specific and made in good faith.\n\nWithin 30 days, please send me: (1) a corrected copy of my credit report, and (2) written confirmation of the results of your reinvestigation.'+sig();
+  if(type==='bureau2') return head(dest)+ref(it)+
+'To Whom It May Concern:\n\nYou recently reported that the disputed item below was "verified." I do not accept an automated, unsupported response.\n\n   • '+who+' — '+reason+'\n\nUnder 15 U.S.C. § 1681i(a)(7), I formally request a description of the method of verification you used, including the business name, address, and telephone number of every furnisher you contacted, and the specific documents you reviewed. A reasonable reinvestigation requires more than a parroted "verified" code (see CFPB Circular 2022-07 on reasonable investigation of disputes).\n\nIf you cannot produce the records that substantiate this item, it must be deleted under 15 U.S.C. § 1681i(a)(5)(A). Please respond within 15 days.'+sig();
+  if(type==='furnisher') return head('The furnisher/collector')+ref(it)+
+'To Whom It May Concern:\n\nYou are furnishing the following information about me to one or more consumer reporting agencies, and I dispute its accuracy directly with you:\n\n   • '+who+' — '+reason+'\n\nUnder 15 U.S.C. § 1681s-2(b), once you receive notice of this dispute you must investigate, review all relevant information, and report the results to the consumer reporting agencies. Under § 1681s-2(a)(1)(A) you may not continue to furnish information you know or have reasonable cause to believe is inaccurate. Please correct or delete this item and notify all bureaus you reported it to.'+sig();
+  if(type==='validation') return head('The furnisher/collector')+ref(it)+
+'To Whom It May Concern:\n\nI dispute this debt and request validation. Under the Fair Debt Collection Practices Act, 15 U.S.C. § 1692g, and the Maryland Consumer Debt Collection Act, Md. Code, Com. Law § 14-202, please provide:\n\n   1. The name and address of the original creditor;\n   2. A copy of the original signed agreement or application;\n   3. A complete payment history and itemization of the amount claimed ('+(it.amt?'$'+it.amt:'[amount]')+');\n   4. Proof that you own this debt and are licensed to collect it in Maryland.\n\nUntil you validate this debt in writing, you must cease collection activity. If you are collecting a consumer debt you purchased in default, note that the Maryland Collection Agency Licensing Act (Bus. Reg. Title 7) generally requires you to be licensed.'+sig();
+  if(type==='obsolete') return head(dest)+ref(it)+
+'To Whom It May Concern:\n\nThe following item has exceeded the maximum reporting period permitted by 15 U.S.C. § 1681c and must be removed from my file:\n\n   • '+who+(it.dofd?' — date of first delinquency: '+it.dofd:'')+'\n\nUnder § 1681c, most adverse items may not be reported after seven years; collection accounts and charge-offs may not be reported after seven years plus 180 days from the original delinquency; and bankruptcies may not be reported after ten years. This item is now obsolete and its continued reporting violates the FCRA. Please delete it and send a corrected report.'+sig();
+  if(type==='idtheft') return head(dest)+ref(it)+
+'To Whom It May Concern:\n\nThe following account in my file resulted from identity theft and does not relate to any transaction by me:\n\n   • '+who+'\n\nUnder 15 U.S.C. § 1681c-2, you must block the reporting of this information within four business days of receiving (1) appropriate proof of my identity, (2) a copy of my identity-theft report, and (3) this statement that the information is not mine. Enclosed are my government ID and my identity-theft report. Please block this item and notify the furnisher that it may be the result of identity theft.\n\nEnclosures: government ID, proof of address, and my FTC Identity Theft Report (IdentityTheft.gov) or police report.\n\nSincerely,\n\n\n'+(profile.name||'[Your name]');
+  if(type==='mcala') return head('The furnisher/collector')+ref(it)+
+'To Whom It May Concern:\n\nYou are reporting a collection account that appears to be a consumer debt you acquired after it was in default. Under the Maryland Collection Agency Licensing Act, Md. Code, Bus. Reg. § 7-301, an entity that collects a consumer claim it owns and that was in default when acquired must hold a Maryland collection agency license.\n\n   • '+who+' — '+reason+'\n\nPlease provide proof of your Maryland collection agency license number. As the Maryland courts confirmed in LVNV Funding LLC v. Finch, consumers have a private right of action against unlicensed collection activity. Absent proof of licensure and validation of this debt, please delete this tradeline from all bureaus.'+sig();
+  if(type==='goodwill') return head('The furnisher/collector')+'RE: Goodwill request — '+who+'\n\nDear '+it.cred+' Customer Care:\n\nI am writing about an otherwise positive account. I take responsibility for the late payment(s) reported, and I have since brought and kept this account in good standing. I am respectfully asking, as a goodwill gesture, that you remove the late-payment notation from my credit reports.\n\nThis is a request, not a dispute — I am simply asking for your consideration as a loyal customer working hard to rebuild. I would be grateful for your help.'+sig();
+  if(type==='609') return head(dest)+ref(it)+
+'To Whom It May Concern:\n\nUnder 15 U.S.C. § 1681g, please provide all information in my file related to the account below, including the sources of the information and the documentation you relied on to report it:\n\n   • '+who+'\n\nIf you cannot produce records sufficient to support the accuracy of this item, please delete it under 15 U.S.C. § 1681i(a)(5)(A). Please also include a record of all parties who have requested my report in the past two years.'+sig();
+  return '';
+}
+function curItem(sel){var id=$(sel).value;return items.find(function(i){return String(i.id)===String(id);});}
+function onLetterType(){
+  var t=$('lt_type').value;
+  $('idtheftWarn').style.display=(t==='idtheft')?'block':'none';
+  var furn=(t==='furnisher'||t==='validation'||t==='mcala'||t==='goodwill');
+  $('lt_dest').value=furn?'The furnisher/collector':$('lt_dest').value;
+}
+function genLetter(){
+  var it=curItem('lt_item'); if(!it){alert('Log an item in the Audit tab first.');return;}
+  var dest=$('lt_dest').value;
+  var txt=LET($('lt_type').value,it,dest);
+  $('letterOut').style.display='block';$('letterOut').textContent=txt;
+  $('mailTo').innerHTML='Mail this <b>certified, return receipt requested</b>, and keep a copy. Then open the item in Audit and tap "Mark mailed today" to start the 30-day clock.';
+}
+function copyLetter(){var t=$('letterOut').textContent;if(!t){genLetter();t=$('letterOut').textContent;}navigator.clipboard.writeText(t).then(function(){$('mailTo').innerHTML='✓ Copied. Paste into a document, add your signature, and mail certified.';});}
+function printLetter(){var t=$('letterOut').textContent;if(!t){genLetter();t=$('letterOut').textContent;}var w=window.open('','_blank');w.document.write('<pre style="font-family:Georgia,serif;white-space:pre-wrap;padding:40px;font-size:14px;line-height:1.6">'+esc(t)+'</pre>');w.document.close();w.print();}
+
+/* ---- CFPB narrative ---- */
+function genCFPB(){
+  var it=curItem('cf_item'); if(!it){alert('Log an item first.');return;}
+  var sentTxt=it.sent?('I mailed a written dispute on '+new Date(it.sent).toLocaleDateString()+' (certified mail). '):'I disputed this item in writing. ';
+  var txt='Company: '+ (it.bureau.indexOf('+')>-1||it.bureau==='All three'?'the credit bureau(s) and furnisher':it.bureau) +'\n\n'+
+'I am disputing inaccurate information on my credit report and the company has not properly investigated it.\n\n'+
+'Account: '+it.cred+(it.acct?' ('+it.acct+')':'')+'\nItem: '+it.type+'\nProblem: '+it.reason+'\n\n'+
+sentTxt+'Under the FCRA (15 U.S.C. § 1681i) the bureau must conduct a reasonable reinvestigation within 30 days and delete information it cannot verify. Under § 1681s-2(b) the furnisher must investigate and stop reporting information it cannot substantiate. '+
+'Either the item was reported inaccurately, or it was "verified" with no real review of records, which does not meet the reasonable-investigation standard (CFPB Circular 2022-07).\n\n'+
+'Desired resolution: Delete or correct this item and send me an updated report. If it cannot be verified with original documentation, it must be removed.';
+  $('cfpbOut').style.display='block';$('cfpbOut').textContent=txt;
+}
+function copyCFPB(){var t=$('cfpbOut').textContent;if(t)navigator.clipboard.writeText(t);}
+</script>
+</body>
+</html>
